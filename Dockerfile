@@ -7,6 +7,8 @@
 #
 # Added on top for Retrieval-Augmented Generation workloads:
 #   - pgvector : vector similarity search over embeddings
+#   - vchord   : VectorChord — scalable, disk-friendly vector indexing on top
+#                of pgvector (RaBitQ); requires preloading
 #   - pg_trgm  : trigram / lexical search (built-in contrib, enabled via init)
 #
 # The result is a single PostgreSQL that can back graph ("GraphRAG"), vector,
@@ -51,11 +53,29 @@ RUN set -eux; \
     apt-mark unhold locales; \
     rm -rf /var/lib/apt/lists/*
 
+# VectorChord (vchord): scalable, disk-friendly vector indexing layered on top
+# of pgvector's `vector` type. Installed from the upstream Debian package
+# (per-arch, arm64/amd64) pinned to a release. It requires preloading (see CMD
+# override below) and pgvector >= 0.7, < 0.9 (satisfied by PGVECTOR_VERSION).
+ARG VCHORD_VERSION=1.1.1
+RUN set -eux; \
+    arch="$(dpkg --print-architecture)"; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends ca-certificates curl; \
+    curl -fsSL -o /tmp/vchord.deb \
+        "https://github.com/tensorchord/VectorChord/releases/download/${VCHORD_VERSION}/postgresql-${PG_MAJOR}-vchord_${VCHORD_VERSION}-1_${arch}.deb"; \
+    apt-get install -y --no-install-recommends /tmp/vchord.deb; \
+    rm -f /tmp/vchord.deb; \
+    apt-get purge -y --auto-remove curl; \
+    rm -rf /var/lib/apt/lists/*
+
 # Enable the RAG extensions in the default database on first init.
 # The base image's 00-create-extension-age.sql creates AGE; this runs after it
-# (lexicographic order) to add vector + pg_trgm.
+# (lexicographic order) to add vector, vchord, and pg_trgm.
 COPY docker-entrypoint-initdb.d/01-create-extensions-rag.sql \
      /docker-entrypoint-initdb.d/01-create-extensions-rag.sql
 
-# ENTRYPOINT and CMD (`postgres -c shared_preload_libraries=age`) are inherited
-# from the base image — intentionally not overridden.
+# Override the base CMD to extend shared_preload_libraries: AGE and VectorChord
+# both require preloading. ENTRYPOINT (the postgres docker-entrypoint) is still
+# inherited. Keep `age` first to preserve the base image's behaviour.
+CMD ["postgres", "-c", "shared_preload_libraries=age,vchord"]

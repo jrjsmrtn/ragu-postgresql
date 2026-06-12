@@ -8,8 +8,8 @@ Retrieval-Augmented Generation backends.
 
 - **Category**: Development
 - **Type**: Container image (PostgreSQL distribution)
-- **Stack**: Dockerfile (OCI), PostgreSQL 18, Apache AGE, pgvector; built and
-  tested with Podman and Apple `container`
+- **Stack**: Dockerfile (OCI), PostgreSQL 18, Apache AGE, pgvector,
+  VectorChord (`vchord`); built and tested with Podman and Apple `container`
 - **License**: Apache-2.0
 - **Tier**: t1
 
@@ -75,10 +75,16 @@ test/smoke-test.sh container
 **Project-specific guidance:**
 
 - Base image is `apache/age:release_PG18_1.7.0` = official `postgres:18`
-  (Debian) + Apache AGE 1.7.0; `shared_preload_libraries=age` is set by the
-  inherited base `CMD` — do not override ENTRYPOINT/CMD.
+  (Debian) + Apache AGE 1.7.0. The base `CMD` sets
+  `shared_preload_libraries=age`; this image **overrides `CMD`** to
+  `postgres -c shared_preload_libraries=age,vchord` because AGE and VectorChord
+  both require preloading. ENTRYPOINT is still inherited — do not override it.
 - pgvector is built from source, pinned to a PG18-compatible release with the
   CVE-2026-3172 fix. Keep it pinned; bump deliberately.
+- VectorChord (`vchord`) is installed from the per-arch upstream `.deb`
+  (`VCHORD_VERSION`), depends on pgvector (0.7–<0.9), and is created with
+  `CREATE EXTENSION vchord CASCADE`. The vchord `.deb` does **not** pull an apt
+  pgvector, so the source build remains the single `vector` provider.
 - PostgreSQL 18 moved the image data dir to `/var/lib/postgresql/18/docker`
   and the VOLUME to `/var/lib/postgresql` — mount the latter.
 - Init scripts in `docker-entrypoint-initdb.d/` only run on first cluster init
@@ -86,10 +92,11 @@ test/smoke-test.sh container
 
 **Open decision (not yet recorded as an ADR):**
 
-- Extension topology: single multi-extension PostgreSQL instance (AGE +
-  pgvector, optionally VectorChord + ParadeDB `pg_search`) vs. multiple
-  containers. Leaning single-instance to enable single-query hybrid retrieval;
-  exact extension set TBD. Record as a topology ADR once settled.
+- Extension topology: a single multi-extension PostgreSQL instance now hosts
+  AGE, pgvector, VectorChord, and pg_trgm. ParadeDB `pg_search` (BM25
+  full-text) is the remaining candidate. The single-instance vs.
+  multiple-containers choice and the final extension set still warrant a
+  topology ADR (next number: 0004).
 
 **AI delegation in this project:**
 
