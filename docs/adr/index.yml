@@ -1,0 +1,22 @@
+# Architecture Decision Records — Ragù PostgreSQL
+
+foundational:
+  - id: 1
+    file: 0001-record-architecture-decisions.md
+    title: Record Architecture Decisions
+    purpose: HOW TO DECIDE
+    status: Accepted
+  - id: 2
+    file: 0002-adopt-development-best-practices.md
+    title: Adopt Development Best Practices
+    purpose: HOW TO DEVELOP
+    status: Accepted
+  - id: 3
+    file: 0003-postgresql-age-pgvector-stack.md
+    title: Use PostgreSQL 18 + Apache AGE + pgvector as the RAG database stack
+    purpose: WHAT TECH
+    status: Accepted
+  # ADR-0004 (operations) skipped: this is a Development-category project.
+  # Next ADR (0004) is reserved for the multi-extension TOPOLOGY decision
+  # (single instance vs. multiple containers; exact extension set), to be
+  # recorded once the pg_search / VectorChord question is settled.
