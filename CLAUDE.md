@@ -9,7 +9,8 @@ Retrieval-Augmented Generation backends.
 - **Category**: Development
 - **Type**: Container image (PostgreSQL distribution)
 - **Stack**: Dockerfile (OCI), PostgreSQL 18, Apache AGE, pgvector,
-  VectorChord (`vchord`); built and tested with Podman and Apple `container`
+  VectorChord (`vchord`), ParadeDB `pg_search`; built and tested with Podman
+  and Apple `container`
 - **License**: Apache-2.0
 - **Tier**: t1
 
@@ -33,9 +34,10 @@ Promotion triggers being watched:
 ## Status
 
 Image built and smoke-tested under both Podman and Apple `container` (AGE
-1.7.0, pgvector 0.8.2, vchord 1.1.1, pg_trgm 1.6). Topology + licensing posture
-recorded in ADR-0004. Unreleased (pre-`v0.1.0`); `pg_search` is the one
-deferred extension candidate.
+1.7.0, pgvector 0.8.2, vchord 1.1.1, pg_search 0.24.0, pg_trgm 1.6). Topology +
+licensing in ADR-0004; pg_search adoption in ADR-0005. Unreleased
+(pre-`v0.1.0`). The image's copyleft floor is now AGPL-3.0 (pg_search is
+AGPL-only) — see `LICENSING.md`.
 
 ## Foundational ADRs
 
@@ -47,6 +49,7 @@ Read these at the start of each AI session for complete context:
 | [ADR-0002](docs/adr/0002-adopt-development-best-practices.md) | HOW TO DEVELOP       | Development practices              |
 | [ADR-0003](docs/adr/0003-technology-stack.md)                 | WHAT TECH            | Technology stack                   |
 | [ADR-0004](docs/adr/0004-extension-topology-and-licensing.md) | TOPOLOGY + LICENSING | Single instance; AGPL/ELv2 posture |
+| [ADR-0005](docs/adr/0005-adopt-pg-search-bm25.md)             | WHAT TECH            | Adopt pg_search (BM25; AGPL-only)  |
 
 ## Development Practices
 
@@ -86,17 +89,23 @@ test/smoke-test.sh container
   (`VCHORD_VERSION`), depends on pgvector (0.7–<0.9), and is created with
   `CREATE EXTENSION vchord CASCADE`. The vchord `.deb` does **not** pull an apt
   pgvector, so the source build remains the single `vector` provider.
+- `pg_search` (ParadeDB) is installed from the per-distro/per-arch upstream
+  `.deb` (`PG_SEARCH_VERSION`); the Debian codename is derived from the base
+  image (`/etc/os-release`) so the package matches the runtime ABI. It is
+  **AGPL-only** — adoption recorded in ADR-0005; mind `LICENSING.md` before any
+  redistribution/SaaS.
 - PostgreSQL 18 moved the image data dir to `/var/lib/postgresql/18/docker`
   and the VOLUME to `/var/lib/postgresql` — mount the latter.
 - Init scripts in `docker-entrypoint-initdb.d/` only run on first cluster init
   and only against the default database.
 
-**Topology/licensing settled in [ADR-0004](docs/adr/0004-extension-topology-and-licensing.md):**
+**Topology/licensing in [ADR-0004](docs/adr/0004-extension-topology-and-licensing.md) + [ADR-0005](docs/adr/0005-adopt-pg-search-bm25.md):**
 
-- Single multi-extension instance hosts AGE, pgvector, VectorChord, pg_trgm.
-  ParadeDB `pg_search` (BM25 full-text) is the one remaining candidate —
-  deferred because it is AGPL-only (no ELv2 fallback); read ADR-0004 before
-  adopting. The built image is a mixed-license aggregate; see `LICENSING.md`.
+- Single multi-extension instance hosts AGE, pgvector, VectorChord, pg_search,
+  pg_trgm. The built image is a mixed-license aggregate whose copyleft floor is
+  **AGPL-3.0** (pg_search is AGPL-only). This is fine for the self-hosted /
+  dogfooding model; a public-distribution or SaaS pivot must revisit ADR-0004 /
+  ADR-0005. See `LICENSING.md`.
 
 **AI delegation in this project:**
 

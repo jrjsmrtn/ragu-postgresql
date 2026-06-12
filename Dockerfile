@@ -6,13 +6,16 @@
 #     script that runs `CREATE EXTENSION age` in the default database.
 #
 # Added on top for Retrieval-Augmented Generation workloads:
-#   - pgvector : vector similarity search over embeddings
-#   - vchord   : VectorChord — scalable, disk-friendly vector indexing on top
-#                of pgvector (RaBitQ); requires preloading
-#   - pg_trgm  : trigram / lexical search (built-in contrib, enabled via init)
+#   - pgvector  : vector similarity search over embeddings
+#   - vchord    : VectorChord — scalable, disk-friendly vector indexing on top
+#                 of pgvector (RaBitQ); requires preloading [AGPL-3.0 / ELv2]
+#   - pg_search : ParadeDB BM25 full-text / hybrid search (Tantivy); requires
+#                 preloading [AGPL-3.0]
+#   - pg_trgm   : trigram / lexical search (built-in contrib, enabled via init)
 #
 # The result is a single PostgreSQL that can back graph ("GraphRAG"), vector,
-# and hybrid (vector + lexical) retrieval in one database.
+# BM25 full-text, and hybrid retrieval in one database. The image is a
+# mixed-license aggregate — see LICENSING.md.
 FROM apache/age:release_PG18_1.7.0
 
 # Pin pgvector to a release that supports PG18 and includes the
@@ -72,13 +75,35 @@ RUN set -eux; \
     apt-get purge -y --auto-remove curl; \
     rm -rf /var/lib/apt/lists/*
 
+# ParadeDB pg_search: BM25 full-text / hybrid search (Tantivy). Installed from
+# ParadeDB's per-distro, per-arch Debian package pinned to a release. The distro
+# codename is derived from the base image so the .deb matches its libc/ABI.
+# NOTE: pg_search is AGPL-3.0 (no permissive/ELv2 option) — see LICENSING.md and
+# docs/adr/0005-adopt-pg-search-bm25.md. It requires preloading (see CMD below).
+ARG PG_SEARCH_VERSION=0.24.0
+# DL3008 (pin apt versions): ca-certificates/curl are transient build-only deps
+#   (curl is purged below); the pg_search package itself is pinned via the URL.
+# hadolint ignore=DL3008
+RUN set -eux; \
+    arch="$(dpkg --print-architecture)"; \
+    . /etc/os-release; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends ca-certificates curl; \
+    curl -fsSL -o /tmp/pg_search.deb \
+        "https://github.com/paradedb/paradedb/releases/download/v${PG_SEARCH_VERSION}/postgresql-${PG_MAJOR}-pg-search_${PG_SEARCH_VERSION}-1PARADEDB-${VERSION_CODENAME}_${arch}.deb"; \
+    apt-get install -y --no-install-recommends /tmp/pg_search.deb; \
+    rm -f /tmp/pg_search.deb; \
+    apt-get purge -y --auto-remove curl; \
+    rm -rf /var/lib/apt/lists/*
+
 # Enable the RAG extensions in the default database on first init.
 # The base image's 00-create-extension-age.sql creates AGE; this runs after it
-# (lexicographic order) to add vector, vchord, and pg_trgm.
+# (lexicographic order) to add vector, vchord, pg_search, and pg_trgm.
 COPY docker-entrypoint-initdb.d/01-create-extensions-rag.sql \
      /docker-entrypoint-initdb.d/01-create-extensions-rag.sql
 
-# Override the base CMD to extend shared_preload_libraries: AGE and VectorChord
-# both require preloading. ENTRYPOINT (the postgres docker-entrypoint) is still
-# inherited. Keep `age` first to preserve the base image's behaviour.
-CMD ["postgres", "-c", "shared_preload_libraries=age,vchord"]
+# Override the base CMD to extend shared_preload_libraries: AGE, VectorChord,
+# and pg_search all require preloading. ENTRYPOINT (the postgres
+# docker-entrypoint) is still inherited. Keep `age` first to preserve the base
+# image's behaviour.
+CMD ["postgres", "-c", "shared_preload_libraries=age,vchord,pg_search"]

@@ -23,3 +23,8 @@ foundational:
     title: Single multi-extension PostgreSQL instance and licensing posture
     purpose: TOPOLOGY + LICENSING
     status: Accepted
+  - id: 5
+    file: 0005-adopt-pg-search-bm25.md
+    title: Adopt ParadeDB pg_search for BM25 full-text
+    purpose: WHAT TECH
+    status: Accepted
