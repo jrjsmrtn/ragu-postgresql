@@ -58,6 +58,9 @@ RUN set -eux; \
 # (per-arch, arm64/amd64) pinned to a release. It requires preloading (see CMD
 # override below) and pgvector >= 0.7, < 0.9 (satisfied by PGVECTOR_VERSION).
 ARG VCHORD_VERSION=1.1.1
+# DL3008 (pin apt versions): ca-certificates/curl are transient build-only deps
+#   (curl is purged below); the vchord package itself is pinned via the .deb URL.
+# hadolint ignore=DL3008
 RUN set -eux; \
     arch="$(dpkg --print-architecture)"; \
     apt-get update; \
