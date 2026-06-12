@@ -24,6 +24,7 @@ architectural decisions.
 **ADR Location**: All ADRs stored in `docs/adr/`.
 
 **ADR Format**: Following the format established by Michael Nygard:
+
 - **Title**: `# N. Title` (adrtools format, required for Structurizr `!adrs`)
 - **Status**: Proposed, Accepted, Deprecated, Superseded
 - **Context**: Forces at play (technical, business, social)
@@ -33,6 +34,7 @@ architectural decisions.
 **Numbering**: Sequential four-digit format (0001, 0002, …) with no gaps.
 
 **What Warrants an ADR**:
+
 - Technology / extension choices
 - Architectural patterns (e.g. single multi-extension instance vs. many services)
 - Build and packaging approaches
@@ -42,11 +44,13 @@ architectural decisions.
 ## Consequences
 
 **Positive**:
+
 - Clear record of why decisions were made
 - Context preserved for future maintainers and AI assistants
 - Reduced repeated discussion about settled decisions
 
 **Negative**:
+
 - Overhead of writing and maintaining ADRs
 - Risk of ADRs becoming outdated if not maintained
 

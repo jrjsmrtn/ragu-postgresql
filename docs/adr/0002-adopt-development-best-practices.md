@@ -83,11 +83,13 @@ the t1→t2 promotion triggers:
 ## Consequences
 
 **Positive**:
+
 - Practices match the artifact (an image), avoiding ceremony that doesn't fit.
 - Clear, automatable quality gates (lint + secret scan + smoke test).
 - Explicit, lightweight promotion path to t2.
 
 **Negative**:
+
 - Smoke-test-only coverage; regressions in untested extension behaviour can
   slip through until exercised.
 - Manual discipline needed to keep pinned versions current.

@@ -18,12 +18,14 @@ Retrieval-Augmented Generation backends.
 Current tier: **t1** (decision-tracked)
 
 Tier-specific artifacts in this project:
+
 - CLAUDE.md, conventional commits, gitflow (`main` / `develop`)
 - Foundation ADRs (`docs/adr/0001`–`0003`)
 - CHANGELOG.md (Keep a Changelog)
 - Two-stage pre-commit hooks
 
 Promotion triggers being watched:
+
 - **t1 → t2** when the documentation outgrows README + ADRs (e.g. usage guides
   for the hybrid-retrieval query patterns warrant a Diátaxis tree), or when the
   extension topology needs a C4 model.
@@ -39,11 +41,11 @@ vector distance verified). Next candidate work: decide the full extension set
 
 Read these at the start of each AI session for complete context:
 
-| ADR | Purpose | Summary |
-|-----|---------|---------|
-| [ADR-0001](docs/adr/0001-record-architecture-decisions.md) | HOW TO DECIDE | Decision methodology |
+| ADR                                                           | Purpose        | Summary               |
+| ------------------------------------------------------------- | -------------- | --------------------- |
+| [ADR-0001](docs/adr/0001-record-architecture-decisions.md)    | HOW TO DECIDE  | Decision methodology  |
 | [ADR-0002](docs/adr/0002-adopt-development-best-practices.md) | HOW TO DEVELOP | Development practices |
-| [ADR-0003](docs/adr/0003-*.md) | WHAT TECH | Technology stack |
+| [ADR-0003](docs/adr/0003-*.md)                                | WHAT TECH      | Technology stack      |
 
 ## Development Practices
 
@@ -71,6 +73,7 @@ test/smoke-test.sh container
 ## AI Collaboration Notes
 
 **Project-specific guidance:**
+
 - Base image is `apache/age:release_PG18_1.7.0` = official `postgres:18`
   (Debian) + Apache AGE 1.7.0; `shared_preload_libraries=age` is set by the
   inherited base `CMD` — do not override ENTRYPOINT/CMD.
@@ -82,12 +85,14 @@ test/smoke-test.sh container
   and only against the default database.
 
 **Open decision (not yet recorded as an ADR):**
+
 - Extension topology: single multi-extension PostgreSQL instance (AGE +
   pgvector, optionally VectorChord + ParadeDB `pg_search`) vs. multiple
   containers. Leaning single-instance to enable single-query hybrid retrieval;
   exact extension set TBD. Record as a topology ADR once settled.
 
 **AI delegation in this project:**
+
 - **AI leads**: Dockerfile/init scripting, smoke tests, docs, version research
 - **Human leads**: extension-set / topology decisions, release tagging
 - **Collaborative**: ADRs, image hardening

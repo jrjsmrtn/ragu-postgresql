@@ -13,12 +13,12 @@ official [Apache AGE](https://age.apache.org/) image so one PostgreSQL can back:
 
 ## What's inside
 
-| Layer        | Component        | Version            | Source |
-|--------------|------------------|--------------------|--------|
-| Base image   | PostgreSQL       | 18                 | `apache/age:release_PG18_1.7.0` |
-| Graph        | Apache AGE       | 1.7.0              | base image |
-| Vector       | pgvector         | 0.8.2 (`v0.8.2`)   | built from source |
-| Lexical      | pg_trgm          | (bundled contrib)  | enabled via init |
+| Layer      | Component  | Version           | Source                          |
+| ---------- | ---------- | ----------------- | ------------------------------- |
+| Base image | PostgreSQL | 18                | `apache/age:release_PG18_1.7.0` |
+| Graph      | Apache AGE | 1.7.0             | base image                      |
+| Vector     | pgvector   | 0.8.2 (`v0.8.2`)  | built from source               |
+| Lexical    | pg_trgm    | (bundled contrib) | enabled via init                |
 
 The base image is multi-arch (`linux/amd64`, `linux/arm64`), so it builds and
 runs natively on Apple Silicon. `shared_preload_libraries=age` is set by the

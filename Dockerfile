@@ -24,6 +24,11 @@ ARG PG_MAJOR=18
 #     the postgres runtime depends on) out with the build deps.
 #   - OPTFLAGS="" disables -march=native so the binary stays portable across
 #     CPUs (matters for sharing one image across machines / arches).
+# DL3008 (pin apt versions): build-only deps purged in this same layer — pinning
+#   adds brittleness, not reproducibility, to the final image.
+# DL3003 (use WORKDIR): a `cd` inside this single build+cleanup RUN is clearer
+#   than a WORKDIR we would immediately tear down.
+# hadolint ignore=DL3003,DL3008
 RUN set -eux; \
     apt-get update; \
     apt-mark hold locales; \

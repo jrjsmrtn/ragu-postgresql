@@ -30,7 +30,11 @@ for _ in $(seq 1 90); do
   fi
   sleep 1
 done
-[ -n "$ready" ] || { echo "!! postgres did not become ready"; "$RUNTIME" logs "$NAME" | tail -30; exit 1; }
+[ -n "$ready" ] || {
+  echo "!! postgres did not become ready"
+  "$RUNTIME" logs "$NAME" | tail -30
+  exit 1
+}
 
 echo ">> running extension + round-trip checks"
 "$RUNTIME" exec -i -e PGPASSWORD="$PASS" "$NAME" \

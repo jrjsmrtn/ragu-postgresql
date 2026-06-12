@@ -1,0 +1,22 @@
+root = true
+
+[*]
+indent_style = space
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+charset = utf-8
+
+[*.{md,yml,yaml,json,sql}]
+indent_size = 2
+
+[*.sh]
+indent_size = 2
+
+[Dockerfile*]
+indent_size = 4
+
+# LICENSE is verbatim upstream text — don't enforce hygiene on it.
+[LICENSE]
+trim_trailing_whitespace = false
+insert_final_newline = false

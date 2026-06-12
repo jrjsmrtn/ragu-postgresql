@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Ragù PostgreSQL image: `apache/age:release_PG18_1.7.0` (PostgreSQL 18 +
   Apache AGE 1.7.0) extended with pgvector 0.8.2 (built from source) and
   `pg_trgm`, for graph + vector + lexical retrieval in one database.
@@ -19,5 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   this changelog, foundation ADRs, and pre-commit quality gates.
 
 ### Verified
+
 - Built and smoke-tested under Podman and Apple `container` (AGE 1.7.0,
   pgvector 0.8.2, pg_trgm 1.6; AGE Cypher round-trip and pgvector distance OK).
