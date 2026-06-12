@@ -116,5 +116,12 @@ $$) AS (d agtype, e agtype);
 
 ## License
 
-The image bundles Apache AGE (Apache-2.0) and pgvector (PostgreSQL License);
-PostgreSQL itself is under the PostgreSQL License.
+This repository's own files are **Apache-2.0** ([`LICENSE`](LICENSE)).
+
+The **built image is a mixed-license aggregate**: PostgreSQL, Apache AGE,
+pgvector, and pg_trgm are permissively licensed, but **VectorChord (`vchord`)
+is AGPL-3.0 / Elastic License 2.0**. This carries obligations if you
+redistribute the image or offer it as a network service. See
+[`LICENSING.md`](LICENSING.md) and
+[ADR-0004](docs/adr/0004-extension-topology-and-licensing.md) for the
+per-component breakdown and the intended (self-hosted) distribution model.

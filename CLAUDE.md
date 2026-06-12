@@ -20,7 +20,7 @@ Current tier: **t1** (decision-tracked)
 Tier-specific artifacts in this project:
 
 - CLAUDE.md, conventional commits, gitflow (`main` / `develop`)
-- Foundation ADRs (`docs/adr/0001`–`0003`)
+- Foundation + decision ADRs (`docs/adr/0001`–`0004`)
 - CHANGELOG.md (Keep a Changelog)
 - Two-stage pre-commit hooks
 
@@ -32,20 +32,21 @@ Promotion triggers being watched:
 
 ## Status
 
-Foundational image is built and smoke-tested under both Podman and Apple
-`container` (AGE 1.7.0, pgvector 0.8.2, pg_trgm 1.6; Cypher round-trip +
-vector distance verified). Next candidate work: decide the full extension set
-(see open decision below) and record the topology ADR.
+Image built and smoke-tested under both Podman and Apple `container` (AGE
+1.7.0, pgvector 0.8.2, vchord 1.1.1, pg_trgm 1.6). Topology + licensing posture
+recorded in ADR-0004. Unreleased (pre-`v0.1.0`); `pg_search` is the one
+deferred extension candidate.
 
 ## Foundational ADRs
 
 Read these at the start of each AI session for complete context:
 
-| ADR                                                           | Purpose        | Summary               |
-| ------------------------------------------------------------- | -------------- | --------------------- |
-| [ADR-0001](docs/adr/0001-record-architecture-decisions.md)    | HOW TO DECIDE  | Decision methodology  |
-| [ADR-0002](docs/adr/0002-adopt-development-best-practices.md) | HOW TO DEVELOP | Development practices |
-| [ADR-0003](docs/adr/0003-*.md)                                | WHAT TECH      | Technology stack      |
+| ADR                                                           | Purpose              | Summary                            |
+| ------------------------------------------------------------- | -------------------- | ---------------------------------- |
+| [ADR-0001](docs/adr/0001-record-architecture-decisions.md)    | HOW TO DECIDE        | Decision methodology               |
+| [ADR-0002](docs/adr/0002-adopt-development-best-practices.md) | HOW TO DEVELOP       | Development practices              |
+| [ADR-0003](docs/adr/0003-technology-stack.md)                 | WHAT TECH            | Technology stack                   |
+| [ADR-0004](docs/adr/0004-extension-topology-and-licensing.md) | TOPOLOGY + LICENSING | Single instance; AGPL/ELv2 posture |
 
 ## Development Practices
 
@@ -90,13 +91,12 @@ test/smoke-test.sh container
 - Init scripts in `docker-entrypoint-initdb.d/` only run on first cluster init
   and only against the default database.
 
-**Open decision (not yet recorded as an ADR):**
+**Topology/licensing settled in [ADR-0004](docs/adr/0004-extension-topology-and-licensing.md):**
 
-- Extension topology: a single multi-extension PostgreSQL instance now hosts
-  AGE, pgvector, VectorChord, and pg_trgm. ParadeDB `pg_search` (BM25
-  full-text) is the remaining candidate. The single-instance vs.
-  multiple-containers choice and the final extension set still warrant a
-  topology ADR (next number: 0004).
+- Single multi-extension instance hosts AGE, pgvector, VectorChord, pg_trgm.
+  ParadeDB `pg_search` (BM25 full-text) is the one remaining candidate —
+  deferred because it is AGPL-only (no ELv2 fallback); read ADR-0004 before
+  adopting. The built image is a mixed-license aggregate; see `LICENSING.md`.
 
 **AI delegation in this project:**
 

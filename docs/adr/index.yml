@@ -12,11 +12,14 @@ foundational:
     purpose: HOW TO DEVELOP
     status: Accepted
   - id: 3
-    file: 0003-postgresql-age-pgvector-stack.md
-    title: Use PostgreSQL 18 + Apache AGE + pgvector as the RAG database stack
+    file: 0003-technology-stack.md
+    title: Technology Stack
     purpose: WHAT TECH
     status: Accepted
   # ADR-0004 (operations) skipped: this is a Development-category project.
-  # Next ADR (0004) is reserved for the multi-extension TOPOLOGY decision
-  # (single instance vs. multiple containers; exact extension set), to be
-  # recorded once the pg_search / VectorChord question is settled.
+  # 0004 instead records the topology + licensing decision (see below).
+  - id: 4
+    file: 0004-extension-topology-and-licensing.md
+    title: Single multi-extension PostgreSQL instance and licensing posture
+    purpose: TOPOLOGY + LICENSING
+    status: Accepted

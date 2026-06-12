@@ -1,4 +1,4 @@
-# 3. Use PostgreSQL 18 + Apache AGE + pgvector as the RAG database stack
+# 3. Technology Stack
 
 Date: 2026-06-13
 
