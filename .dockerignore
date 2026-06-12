@@ -1,0 +1,9 @@
+.git
+.gitignore
+.tmuxp.yml
+README.md
+LICENSE
+test
+.env
+.env.*
+compose.yaml

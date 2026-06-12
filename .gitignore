@@ -1,0 +1,19 @@
+# Secrets and credentials
+.env
+.env.*
+!.env.example
+.envrc
+.envrc.local
+*.pem
+*.key
+credentials.json
+secrets.yaml
+
+# Claude Code local / runtime files
+CLAUDE.local.md
+.claude/settings.local.json
+.claude/*.lock
+
+# OS / editor noise
+.DS_Store
+*.swp
