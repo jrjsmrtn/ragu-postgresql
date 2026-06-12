@@ -7,9 +7,10 @@ The **built container image is a mixed-license aggregate**: it bundles several
 independently-licensed PostgreSQL extensions, loaded at runtime by PostgreSQL.
 Aggregating them in one image is "mere aggregation" — it does **not** relicense
 this repo's Apache-2.0 code or the permissive components. But the image as a
-whole is **not** uniformly Apache-2.0, and one bundled component (VectorChord)
-is copyleft / source-available. Read this before redistributing the image or
-offering it as a network service.
+whole is **not** uniformly Apache-2.0, and two bundled components (VectorChord
+and ParadeDB pg_search) are copyleft. Because `pg_search` is **AGPL-only**, the
+image's copyleft floor is AGPL-3.0. Read this before redistributing the image
+or offering it as a network service.
 
 ## Bundled components
 
@@ -20,14 +21,13 @@ offering it as a network service.
 | pgvector                   | 0.8.2   | PostgreSQL License                           | `PostgreSQL`                   | Permissive                      |
 | pg_trgm (contrib)          | bundled | PostgreSQL License                           | `PostgreSQL`                   | Permissive                      |
 | **VectorChord** (`vchord`) | 1.1.1   | **AGPL-3.0 _or_ Elastic License 2.0** (dual) | `AGPL-3.0-only OR Elastic-2.0` | **Copyleft / source-available** |
-
-Candidate, **not currently bundled**:
-
-| Component            | License                          | Type                                  |
-| -------------------- | -------------------------------- | ------------------------------------- |
-| ParadeDB `pg_search` | **AGPL-3.0** (+ paid commercial) | Copyleft (AGPL-only on the open side) |
+| **ParadeDB `pg_search`**   | 0.24.0  | **AGPL-3.0** (+ paid commercial)             | `AGPL-3.0-only`                | **Copyleft (AGPL-only)**        |
 
 All bundled components are shipped **unmodified** from their upstream releases.
+
+> **The image's copyleft floor is AGPL-3.0.** `pg_search` offers no permissive
+> or ELv2 option, so — unlike with VectorChord alone — there is no whole-image
+> path that avoids AGPL. See [ADR-0005](docs/adr/0005-adopt-pg-search-bm25.md).
 
 ## What this means
 
@@ -46,29 +46,31 @@ All bundled components are shipped **unmodified** from their upstream releases.
     Removes the copyleft/source-disclosure duty but **prohibits providing the
     software to third parties as a hosted/managed service** and bans
     circumventing license keys.
+- **`pg_search` is AGPL-only** (the alternative is a paid ParadeDB commercial
+  license). It has **no ELv2/permissive option**, so the image as a whole now
+  unavoidably contains AGPL-3.0 code — there is no whole-image ELv2 path. See
+  [ADR-0005](docs/adr/0005-adopt-pg-search-bm25.md).
 - `vchord` depends on `pgvector`'s `vector` type, but that dependency is
   permissive → AGPL-consumer; **pgvector keeps its permissive license**.
 
 ## Obligations by how you use the image
 
-| Use                                                                   | AGPL-3.0 arm                                                                                    | ELv2 arm                                 |
-| --------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| **Self-hosted / homelab / dogfooding** (no third-party network users) | No source-offer triggered; just attribute                                                       | No managed-service restriction triggered |
-| **Redistribute the image** (public registry, etc.)                    | Offer VectorChord source (unmodified → link upstream); pass along AGPL terms for that component | Comply with ELv2 redistribution terms    |
-| **Offer as a managed service to third parties (SaaS)**                | Must offer AGPL component source to users (§13)                                                 | **Prohibited** by ELv2                   |
+Because `pg_search` is AGPL-only, the AGPL column below is the **binding** one
+for the image as a whole (the ELv2 column applies only to VectorChord's own
+licensing choice, not to `pg_search`).
+
+| Use                                                                   | AGPL-3.0 (binding, incl. pg_search)                                         | VectorChord ELv2 choice                  |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------- |
+| **Self-hosted / homelab / dogfooding** (no third-party network users) | No source-offer triggered; just attribute                                   | No managed-service restriction triggered |
+| **Redistribute the image** (public registry, etc.)                    | Offer AGPL components' source (unmodified → link upstream); pass along AGPL | Comply with ELv2 redistribution terms    |
+| **Offer as a managed service to third parties (SaaS)**                | Must offer AGPL components' source to users (§13) — unavoidable             | (moot — pg_search forces AGPL anyway)    |
 
 This project's intended model is **self-hosted / dogfooding** (see
-[ADR-0004](docs/adr/0004-extension-topology-and-licensing.md)), where neither
-§13 nor the ELv2 managed-service clause is triggered. A pivot to public
-redistribution or SaaS requires revisiting that ADR.
-
-## If `pg_search` is added later
-
-ParadeDB `pg_search` is **AGPL-3.0** with no ELv2 fallback (the alternative is a
-paid commercial license). Adding it means **two** AGPL components and removes
-the ELv2 escape hatch for the image's copyleft surface. Decide deliberately —
-ParadeDB notes it issues commercial licenses specifically to Apache-licensed
-projects wary of AGPL.
+[ADR-0004](docs/adr/0004-extension-topology-and-licensing.md) and
+[ADR-0005](docs/adr/0005-adopt-pg-search-bm25.md)), where neither §13 nor the
+ELv2 managed-service clause is triggered. A pivot to public redistribution or
+SaaS requires revisiting those ADRs — and, for SaaS, AGPL compliance or
+commercial licenses for both `pg_search` and VectorChord.
 
 ## Attribution / source
 
@@ -78,6 +80,7 @@ Each component's source and license are at its upstream project:
 - Apache AGE — <https://github.com/apache/age> (Apache-2.0)
 - pgvector — <https://github.com/pgvector/pgvector> (PostgreSQL License)
 - VectorChord — <https://github.com/tensorchord/VectorChord> (AGPL-3.0 / ELv2)
+- ParadeDB pg_search — <https://github.com/paradedb/paradedb> (AGPL-3.0)
 
 ---
 

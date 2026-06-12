@@ -6,6 +6,10 @@ Date: 2026-06-13
 
 Accepted
 
+> **Update:** the deferral of `pg_search` (below) was superseded by
+> [ADR-0005](0005-adopt-pg-search-bm25.md), which adopts it. The topology and
+> licensing-posture decision otherwise stands.
+
 ## Context
 
 Ragù PostgreSQL serves RAG retrieval across three access patterns — graph

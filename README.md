@@ -4,14 +4,16 @@ A RAG-ready **PostgreSQL 18** container image: graph + vector + lexical
 retrieval in a single database, for building Retrieval-Augmented Generation
 backends.
 
-It layers [pgvector](https://github.com/pgvector/pgvector) and
-[VectorChord](https://github.com/tensorchord/VectorChord) on top of the
+It layers [pgvector](https://github.com/pgvector/pgvector),
+[VectorChord](https://github.com/tensorchord/VectorChord), and
+[ParadeDB pg_search](https://github.com/paradedb/paradedb) on top of the
 official [Apache AGE](https://age.apache.org/) image so one PostgreSQL can back:
 
 - **GraphRAG** — graph traversal via Apache AGE (openCypher).
 - **Vector retrieval** — embeddings + similarity search via pgvector, with
   scalable, disk-friendly indexing via VectorChord (`vchord`).
-- **Hybrid retrieval** — lexical / fuzzy matching via `pg_trgm`.
+- **Full-text / hybrid retrieval** — BM25 ranking via ParadeDB `pg_search`,
+  plus trigram / fuzzy matching via `pg_trgm`.
 
 ## What's inside
 
@@ -21,18 +23,20 @@ official [Apache AGE](https://age.apache.org/) image so one PostgreSQL can back:
 | Graph      | Apache AGE             | 1.7.0             | base image                      |
 | Vector     | pgvector               | 0.8.2 (`v0.8.2`)  | built from source               |
 | Vector idx | VectorChord (`vchord`) | 1.1.1             | upstream `.deb`                 |
+| Full-text  | ParadeDB `pg_search`   | 0.24.0            | upstream `.deb`                 |
 | Lexical    | pg_trgm                | (bundled contrib) | enabled via init                |
 
 The base image is multi-arch (`linux/amd64`, `linux/arm64`), so it builds and
-runs natively on Apple Silicon. Apache AGE and VectorChord both require
-preloading, so this image overrides the base `CMD` to
-`postgres -c shared_preload_libraries=age,vchord`.
+runs natively on Apple Silicon. Apache AGE, VectorChord, and pg_search all
+require preloading, so this image overrides the base `CMD` to
+`postgres -c shared_preload_libraries=age,vchord,pg_search`.
 
 The extensions are created in the default database on first initialisation by
 `docker-entrypoint-initdb.d/`:
 
 - `00-create-extension-age.sql` (base image) → `age`
-- `01-create-extensions-rag.sql` (this image) → `vector`, `vchord`, `pg_trgm`
+- `01-create-extensions-rag.sql` (this image) → `vector`, `vchord`,
+  `pg_search`, `pg_trgm`
 
 > Init scripts only run on **first** cluster init (empty data volume) and only
 > against the default `POSTGRES_DB`. For additional databases, run
@@ -120,8 +124,10 @@ This repository's own files are **Apache-2.0** ([`LICENSE`](LICENSE)).
 
 The **built image is a mixed-license aggregate**: PostgreSQL, Apache AGE,
 pgvector, and pg_trgm are permissively licensed, but **VectorChord (`vchord`)
-is AGPL-3.0 / Elastic License 2.0**. This carries obligations if you
-redistribute the image or offer it as a network service. See
-[`LICENSING.md`](LICENSING.md) and
-[ADR-0004](docs/adr/0004-extension-topology-and-licensing.md) for the
-per-component breakdown and the intended (self-hosted) distribution model.
+is AGPL-3.0 / Elastic License 2.0** and **ParadeDB `pg_search` is AGPL-3.0**
+(AGPL-only). The image's copyleft floor is therefore AGPL-3.0, which carries
+obligations if you redistribute the image or offer it as a network service.
+See [`LICENSING.md`](LICENSING.md),
+[ADR-0004](docs/adr/0004-extension-topology-and-licensing.md), and
+[ADR-0005](docs/adr/0005-adopt-pg-search-bm25.md) for the per-component
+breakdown and the intended (self-hosted) distribution model.

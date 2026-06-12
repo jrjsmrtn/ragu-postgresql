@@ -9,5 +9,8 @@ CREATE EXTENSION IF NOT EXISTS vector;
 -- CASCADE ensures `vector` exists first (it does, created just above).
 CREATE EXTENSION IF NOT EXISTS vchord CASCADE;
 
+-- ParadeDB pg_search: BM25 full-text / hybrid search (Tantivy).
+CREATE EXTENSION IF NOT EXISTS pg_search;
+
 -- Trigram indexes for lexical / fuzzy text matching (hybrid retrieval).
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
