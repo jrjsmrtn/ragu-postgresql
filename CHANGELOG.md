@@ -10,8 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Ragù PostgreSQL image: `apache/age:release_PG18_1.7.0` (PostgreSQL 18 +
-  Apache AGE 1.7.0) extended with pgvector 0.8.2 (built from source) and
-  `pg_trgm`, for graph + vector + lexical retrieval in one database.
+  Apache AGE 1.7.0) extended with pgvector 0.8.2 (built from source),
+  VectorChord (`vchord`) 1.1.1 (upstream `.deb`), and `pg_trgm`, for graph +
+  vector + lexical retrieval in one database.
+- VectorChord support: installed from the per-arch upstream `.deb` and enabled
+  via `shared_preload_libraries=age,vchord` (overrides the base `CMD`);
+  `vchord` created with `CASCADE` on top of pgvector.
 - Auto-created extensions on first init via `docker-entrypoint-initdb.d/`.
 - Runtime-agnostic smoke test (`test/smoke-test.sh`: podman | container | docker).
 - Podman-first / Docker-compatible `compose.yaml` (PG18-correct
@@ -22,4 +26,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Verified
 
 - Built and smoke-tested under Podman and Apple `container` (AGE 1.7.0,
-  pgvector 0.8.2, pg_trgm 1.6; AGE Cypher round-trip and pgvector distance OK).
+  pgvector 0.8.2, vchord 1.1.1, pg_trgm 1.6; AGE Cypher round-trip and pgvector
+  distance OK; `vchord` loads, confirming the preload override works).

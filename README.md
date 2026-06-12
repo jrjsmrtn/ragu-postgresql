@@ -4,31 +4,35 @@ A RAG-ready **PostgreSQL 18** container image: graph + vector + lexical
 retrieval in a single database, for building Retrieval-Augmented Generation
 backends.
 
-It layers [pgvector](https://github.com/pgvector/pgvector) on top of the
+It layers [pgvector](https://github.com/pgvector/pgvector) and
+[VectorChord](https://github.com/tensorchord/VectorChord) on top of the
 official [Apache AGE](https://age.apache.org/) image so one PostgreSQL can back:
 
 - **GraphRAG** — graph traversal via Apache AGE (openCypher).
-- **Vector retrieval** — embeddings + similarity search via pgvector.
+- **Vector retrieval** — embeddings + similarity search via pgvector, with
+  scalable, disk-friendly indexing via VectorChord (`vchord`).
 - **Hybrid retrieval** — lexical / fuzzy matching via `pg_trgm`.
 
 ## What's inside
 
-| Layer      | Component  | Version           | Source                          |
-| ---------- | ---------- | ----------------- | ------------------------------- |
-| Base image | PostgreSQL | 18                | `apache/age:release_PG18_1.7.0` |
-| Graph      | Apache AGE | 1.7.0             | base image                      |
-| Vector     | pgvector   | 0.8.2 (`v0.8.2`)  | built from source               |
-| Lexical    | pg_trgm    | (bundled contrib) | enabled via init                |
+| Layer      | Component              | Version           | Source                          |
+| ---------- | ---------------------- | ----------------- | ------------------------------- |
+| Base image | PostgreSQL             | 18                | `apache/age:release_PG18_1.7.0` |
+| Graph      | Apache AGE             | 1.7.0             | base image                      |
+| Vector     | pgvector               | 0.8.2 (`v0.8.2`)  | built from source               |
+| Vector idx | VectorChord (`vchord`) | 1.1.1             | upstream `.deb`                 |
+| Lexical    | pg_trgm                | (bundled contrib) | enabled via init                |
 
 The base image is multi-arch (`linux/amd64`, `linux/arm64`), so it builds and
-runs natively on Apple Silicon. `shared_preload_libraries=age` is set by the
-base image's `CMD` and is preserved.
+runs natively on Apple Silicon. Apache AGE and VectorChord both require
+preloading, so this image overrides the base `CMD` to
+`postgres -c shared_preload_libraries=age,vchord`.
 
-The three extensions are created in the default database on first
-initialisation by `docker-entrypoint-initdb.d/`:
+The extensions are created in the default database on first initialisation by
+`docker-entrypoint-initdb.d/`:
 
 - `00-create-extension-age.sql` (base image) → `age`
-- `01-create-extensions-rag.sql` (this image) → `vector`, `pg_trgm`
+- `01-create-extensions-rag.sql` (this image) → `vector`, `vchord`, `pg_trgm`
 
 > Init scripts only run on **first** cluster init (empty data volume) and only
 > against the default `POSTGRES_DB`. For additional databases, run
