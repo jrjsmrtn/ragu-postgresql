@@ -90,6 +90,24 @@ test/smoke-test.sh container   # Apple container
 test/smoke-test.sh docker
 ```
 
+## Security
+
+Supply-chain and vulnerability hygiene (see
+[ADR-0006](docs/adr/0006-container-security-checks.md)):
+
+- **Build-time integrity** — the base image is pinned by digest, and the
+  VectorChord + pg_search `.deb`s are sha256-verified (per arch) before install.
+- **Image scan** — SBOM (syft) + vulnerability scan (grype), run on demand:
+
+```bash
+test/scan.sh                      # scans local/ragu-postgresql:latest via podman
+test/scan.sh local/ragu-postgresql:latest docker
+```
+
+`test/scan.sh` writes `sbom.spdx.json` / `sbom.cdx.json`, prints a license
+summary, and fails on High/Critical vulnerabilities (threshold and the curated
+ignore-list live in `.grype.yaml`).
+
 ## Usage sketch
 
 ```sql

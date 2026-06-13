@@ -19,14 +19,16 @@ Enforced via `.editorconfig`. `shfmt` reads `.editorconfig` for shell indent.
 
 ## Quality Checks by Stage
 
-| Check              | Pre-commit | Pre-push | CI  | Tool             | Notes                    |
-| ------------------ | ---------- | -------- | --- | ---------------- | ------------------------ |
-| Secret scan        | Yes        | -        | Yes | gitleaks         | `protect --staged`       |
-| Markdown format    | Yes        | -        | Yes | dprint           | `dprint check`           |
-| Shell format       | Yes        | -        | Yes | shfmt            | `shfmt --diff`           |
-| Shell lint         | -          | Yes      | Yes | shellcheck       |                          |
-| Dockerfile lint    | -          | Yes      | Yes | hadolint         | see note below           |
-| Build + smoke test | -          | -        | Yes | podman/container | run manually pre-release |
+| Check              | Pre-commit | Pre-push | CI  | Tool             | Notes                        |
+| ------------------ | ---------- | -------- | --- | ---------------- | ---------------------------- |
+| Secret scan        | Yes        | -        | Yes | gitleaks         | `protect --staged`           |
+| Markdown format    | Yes        | -        | Yes | dprint           | `dprint check`               |
+| Shell format       | Yes        | -        | Yes | shfmt            | `shfmt --diff`               |
+| Shell lint         | -          | Yes      | Yes | shellcheck       |                              |
+| Dockerfile lint    | -          | Yes      | Yes | hadolint         | see note below               |
+| Build + smoke test | -          | -        | Yes | podman/container | run manually pre-release     |
+| SBOM + vuln scan   | -          | -        | Yes | syft + grype     | `test/scan.sh`; see ADR-0006 |
+| `.deb` + base pin  | build-time | -        | -   | sha256 / digest  | enforced during build        |
 
 There is no application runtime to unit-test; the deliverable is the image, so
 the functional gate is `test/smoke-test.sh` under both Podman and Apple
@@ -36,6 +38,8 @@ boots a container).
 ## Tooling
 
 Installed via MacPorts: `lefthook`, `dprint`, `shellcheck`, `shfmt`, `gitleaks`.
+Security scanners: `syft` + `grype` (image SBOM + CVE scan, `test/scan.sh`);
+`cosign` available for future image signing (see ADR-0006).
 
 **hadolint** is not packaged for MacPorts. The pre-push Dockerfile lint uses a
 local `hadolint` binary if present, else the `hadolint/hadolint` container via

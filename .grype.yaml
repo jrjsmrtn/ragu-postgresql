@@ -1,0 +1,9 @@
+# grype config for Ragù PostgreSQL image scans (test/scan.sh).
+# Fail the scan on High or Critical vulnerabilities.
+fail-on-severity: "high"
+
+# Curated allowlist for base-image CVEs that are won't-fix / not reachable in
+# this image. Keep each entry justified; do not blanket-ignore. Example:
+#   ignore:
+#     - vulnerability: CVE-2025-XXXXX   # Debian base won't-fix; not exploitable here
+ignore: []

@@ -21,7 +21,7 @@ Current tier: **t1** (decision-tracked)
 Tier-specific artifacts in this project:
 
 - CLAUDE.md, conventional commits, gitflow (`main` / `develop`)
-- Foundation + decision ADRs (`docs/adr/0001`–`0004`)
+- Foundation + decision ADRs (`docs/adr/0001`–`0006`)
 - CHANGELOG.md (Keep a Changelog)
 - Two-stage pre-commit hooks
 
@@ -43,13 +43,14 @@ AGPL-only) — see `LICENSING.md`.
 
 Read these at the start of each AI session for complete context:
 
-| ADR                                                           | Purpose              | Summary                            |
-| ------------------------------------------------------------- | -------------------- | ---------------------------------- |
-| [ADR-0001](docs/adr/0001-record-architecture-decisions.md)    | HOW TO DECIDE        | Decision methodology               |
-| [ADR-0002](docs/adr/0002-adopt-development-best-practices.md) | HOW TO DEVELOP       | Development practices              |
-| [ADR-0003](docs/adr/0003-technology-stack.md)                 | WHAT TECH            | Technology stack                   |
-| [ADR-0004](docs/adr/0004-extension-topology-and-licensing.md) | TOPOLOGY + LICENSING | Single instance; AGPL/ELv2 posture |
-| [ADR-0005](docs/adr/0005-adopt-pg-search-bm25.md)             | WHAT TECH            | Adopt pg_search (BM25; AGPL-only)  |
+| ADR                                                           | Purpose              | Summary                              |
+| ------------------------------------------------------------- | -------------------- | ------------------------------------ |
+| [ADR-0001](docs/adr/0001-record-architecture-decisions.md)    | HOW TO DECIDE        | Decision methodology                 |
+| [ADR-0002](docs/adr/0002-adopt-development-best-practices.md) | HOW TO DEVELOP       | Development practices                |
+| [ADR-0003](docs/adr/0003-technology-stack.md)                 | WHAT TECH            | Technology stack                     |
+| [ADR-0004](docs/adr/0004-extension-topology-and-licensing.md) | TOPOLOGY + LICENSING | Single instance; AGPL/ELv2 posture   |
+| [ADR-0005](docs/adr/0005-adopt-pg-search-bm25.md)             | WHAT TECH            | Adopt pg_search (BM25; AGPL-only)    |
+| [ADR-0006](docs/adr/0006-container-security-checks.md)        | SECURITY             | grype/syft scan; .deb + base pinning |
 
 ## Development Practices
 
@@ -78,11 +79,12 @@ test/smoke-test.sh container
 
 **Project-specific guidance:**
 
-- Base image is `apache/age:release_PG18_1.7.0` = official `postgres:18`
-  (Debian) + Apache AGE 1.7.0. The base `CMD` sets
-  `shared_preload_libraries=age`; this image **overrides `CMD`** to
-  `postgres -c shared_preload_libraries=age,vchord` because AGE and VectorChord
-  both require preloading. ENTRYPOINT is still inherited — do not override it.
+- Base image is `apache/age:release_PG18_1.7.0` (= official `postgres:18`
+  Debian + Apache AGE 1.7.0), **pinned by digest** (ADR-0006). The base `CMD`
+  sets `shared_preload_libraries=age`; this image **overrides `CMD`** to
+  `postgres -c shared_preload_libraries=age,vchord,pg_search` because AGE,
+  VectorChord, and pg_search all require preloading. ENTRYPOINT is still
+  inherited — do not override it.
 - pgvector is built from source, pinned to a PG18-compatible release with the
   CVE-2026-3172 fix. Keep it pinned; bump deliberately.
 - VectorChord (`vchord`) is installed from the per-arch upstream `.deb`
@@ -98,6 +100,10 @@ test/smoke-test.sh container
   and the VOLUME to `/var/lib/postgresql` — mount the latter.
 - Init scripts in `docker-entrypoint-initdb.d/` only run on first cluster init
   and only against the default database.
+- Security (ADR-0006): base image is digest-pinned and the vchord/pg_search
+  `.deb`s are sha256-verified per arch. **When bumping any of these, update the
+  pinned digest/checksums** (build fails otherwise — by design). `test/scan.sh`
+  runs syft+grype; policy in `.grype.yaml`.
 
 **Topology/licensing in [ADR-0004](docs/adr/0004-extension-topology-and-licensing.md) + [ADR-0005](docs/adr/0005-adopt-pg-search-bm25.md):**
 

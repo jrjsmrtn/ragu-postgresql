@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   preload extended to `age,vchord,pg_search`. **Note:** `pg_search` is
   AGPL-only, making AGPL-3.0 the image's copyleft floor (see `LICENSING.md`,
   ADR-0005).
+- Container security checks (ADR-0006): base image pinned by digest; VectorChord
+  and pg_search `.deb`s sha256-verified per arch before install; `test/scan.sh`
+  for SBOM (syft) + vulnerability scan (grype) with a `.grype.yaml` policy.
 - Runtime-agnostic smoke test (`test/smoke-test.sh`: podman | container | docker).
 - Podman-first / Docker-compatible `compose.yaml` (PG18-correct
   `/var/lib/postgresql` volume).
