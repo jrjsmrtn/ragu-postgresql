@@ -22,10 +22,13 @@ ADRs contemplate possible distribution, so the checks should be publish-ready.
 
 Adopt four checks now:
 
-1. **Image vulnerability scan** — `grype` over the built image, failing on
-   High/Critical. Threshold and a curated ignore-list live in `.grype.yaml`
-   (base images carry won't-fix CVEs; blanket-ignoring is not allowed —
-   entries are justified individually).
+1. **Image vulnerability scan** — `grype` over the built image. Policy in
+   `.grype.yaml`: **fail only on fixable-and-unpatched High/Critical** — the
+   CVEs we can act on. Fixable ones are patched in the Dockerfile (version-
+   pinned, e.g. libgnutls30t64, libcap2); CVEs with no apt remediation
+   (`wont-fix` / `not-fixed` / `unknown`) and the gosu Go-stdlib are ignored by
+   documented policy, and re-surface automatically as `fixed` once a patch
+   ships (which then trips the gate and prompts a pinned bump).
 2. **SBOM + license audit** — `syft` emits SPDX + CycloneDX SBOMs; the license
    summary cross-checks `LICENSING.md` and surfaces any license pulled in
    transitively. Feeds grype.

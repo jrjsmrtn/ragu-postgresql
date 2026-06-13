@@ -22,13 +22,17 @@
 FROM apache/age:release_PG18_1.7.0@sha256:e7de1717e487dac7c1be93a1cd5360a2cf07ff4170342c2af2ac4713c21baf00
 
 # Security: patch base-image packages with fixable High/Critical CVEs surfaced
-# by the grype scan (ADR-0006). libgnutls30t64 deb13u1 → deb13u4 clears
-# CVE-2026-42010 (Critical), CVE-2026-33845 (Critical), CVE-2026-42009/5260/
-# 3833/33846 (High). Version-pinned so a bump is deliberate (build fails if the
-# pin is no longer available, the same model as the .deb checksums).
+# by the grype scan (ADR-0006):
+#   - libgnutls30t64 → deb13u4: CVE-2026-42010, CVE-2026-33845 (Critical),
+#     CVE-2026-42009/5260/3833/33846 (High)
+#   - libcap2 → deb13u1+b1: CVE-2026-4878 (High)
+# Version-pinned so a bump is deliberate (build fails if a pin is no longer
+# available, the same model as the .deb checksums).
 RUN set -eux; \
     apt-get update; \
-    apt-get install -y --no-install-recommends --only-upgrade libgnutls30t64=3.8.9-3+deb13u4; \
+    apt-get install -y --no-install-recommends --only-upgrade \
+        libgnutls30t64=3.8.9-3+deb13u4 \
+        libcap2=1:2.75-10+deb13u1+b1; \
     rm -rf /var/lib/apt/lists/*
 
 # Pin pgvector to a release that supports PG18 and includes the

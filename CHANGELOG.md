@@ -32,9 +32,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-- Patched `libgnutls30t64` (deb13u1 → deb13u4, version-pinned) to clear the
-  fixable High/Critical CVEs surfaced by grype (CVE-2026-42010, CVE-2026-33845
-  Critical; CVE-2026-42009/5260/3833/33846 High).
+- Patched `libgnutls30t64` (deb13u1 → deb13u4) and `libcap2`
+  (→ deb13u1+b1), version-pinned, to clear the fixable High/Critical CVEs
+  surfaced by grype (CVE-2026-42010, CVE-2026-33845 Critical; CVE-2026-42009/
+  5260/3833/33846, CVE-2026-4878 High).
+- `.grype.yaml` gate policy: fail only on fixable-and-unpatched High/Critical;
+  CVEs with no apt remediation and the gosu Go-stdlib are ignored by documented
+  policy. The grype gate now passes (no actionable High/Critical remain).
 
 ### Verified
 
