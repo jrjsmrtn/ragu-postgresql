@@ -30,6 +30,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Project orchestration alignment at tier **t1**: CLAUDE.md, Apache-2.0 LICENSE,
   this changelog, foundation ADRs, and pre-commit quality gates.
 
+### Security
+
+- Patched `libgnutls30t64` (deb13u1 → deb13u4, version-pinned) to clear the
+  fixable High/Critical CVEs surfaced by grype (CVE-2026-42010, CVE-2026-33845
+  Critical; CVE-2026-42009/5260/3833/33846 High).
+
 ### Verified
 
 - Built and smoke-tested under Podman and Apple `container` (AGE 1.7.0,
