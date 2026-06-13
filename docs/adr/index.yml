@@ -28,3 +28,8 @@ foundational:
     title: Adopt ParadeDB pg_search for BM25 full-text
     purpose: WHAT TECH
     status: Accepted
+  - id: 6
+    file: 0006-container-security-checks.md
+    title: Container Security Checks
+    purpose: SECURITY
+    status: Accepted
