@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-06-15
+
 ### Added
 
 - CI **publish-on-tag** job: on `v*` tags (after lint + build-scan pass), build
