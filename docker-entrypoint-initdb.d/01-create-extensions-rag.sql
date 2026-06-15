@@ -14,3 +14,6 @@ CREATE EXTENSION IF NOT EXISTS pg_search;
 
 -- Trigram indexes for lexical / fuzzy text matching (hybrid retrieval).
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- repology/libversion: version-string comparison functions + `versiontext` type.
+CREATE EXTENSION IF NOT EXISTS libversion;

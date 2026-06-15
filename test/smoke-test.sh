@@ -42,7 +42,7 @@ echo ">> running extension + round-trip checks"
 \echo -- extension versions --
 SELECT extname || ' ' || extversion
 FROM pg_extension
-WHERE extname IN ('age', 'vector', 'vchord', 'pg_search', 'pg_trgm')
+WHERE extname IN ('age', 'vector', 'vchord', 'pg_search', 'pg_trgm', 'libversion')
 ORDER BY extname;
 
 \echo -- AGE: graph + cypher round-trip --
@@ -57,6 +57,9 @@ SELECT '[1,2,3]'::vector <-> '[1,2,4]'::vector AS l2_distance;
 
 \echo -- pg_trgm: similarity --
 SELECT similarity('retrieval', 'retriever') AS trgm_similarity;
+
+\echo -- libversion: semantic version compare (expect -1) --
+SELECT version_compare2('1.2.0', '1.10.0') AS cmp;
 SQL
 
 echo ">> OK ($RUNTIME)"
