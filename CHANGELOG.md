@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-06-15
+
+### Changed
+
+- CI: bump GitHub Actions (via Dependabot) — `actions/checkout` v6,
+  `hadolint-action` v3.3.0, `gitleaks-action` v3, `upload-artifact` v7,
+  `docker/setup-qemu`+`setup-buildx`+`login` v4, `build-push-action` v7.
+
 ## [0.1.7] - 2026-06-15
 
 ### Added
