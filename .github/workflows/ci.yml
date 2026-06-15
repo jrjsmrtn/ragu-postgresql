@@ -19,11 +19,11 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # full history for gitleaks
       - name: hadolint (Dockerfile)
-        uses: hadolint/hadolint-action@v3.1.0
+        uses: hadolint/hadolint-action@v3.3.0
         with:
           dockerfile: Dockerfile
       - name: shellcheck (shell scripts)
@@ -36,14 +36,14 @@ jobs:
           curl -fsSL https://dprint.dev/install.sh | sh -s >/dev/null
           "$HOME/.dprint/bin/dprint" check
       - name: gitleaks (secret scan)
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # tags, so build.sh's `git describe` stamps labels
       - name: Build image (OCI labels stamped from git)
@@ -58,7 +58,7 @@ jobs:
         run: ./test/scan.sh local/ragu-postgresql:ci docker
       - name: Upload SBOM
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sbom
           path: |
