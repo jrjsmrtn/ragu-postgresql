@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-06-15
+
+### Added
+
+- OCI image labels (`org.opencontainers.image.*`): static title, description,
+  licenses (`Apache-2.0 AND PostgreSQL AND MIT AND AGPL-3.0-only`), source, and
+  base name + digest; plus `version` / `revision` / `created` as build-args.
+  `build.sh [runtime] [tag]` stamps the dynamic ones from the git checkout.
+
 ## [0.1.3] - 2026-06-15
 
 ### Added
