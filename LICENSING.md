@@ -14,14 +14,15 @@ or offering it as a network service.
 
 ## Bundled components
 
-| Component                  | Version | License                                      | SPDX                           | Type                            |
-| -------------------------- | ------- | -------------------------------------------- | ------------------------------ | ------------------------------- |
-| PostgreSQL (base)          | 18      | PostgreSQL License                           | `PostgreSQL`                   | Permissive                      |
-| Apache AGE                 | 1.7.0   | Apache License 2.0                           | `Apache-2.0`                   | Permissive                      |
-| pgvector                   | 0.8.2   | PostgreSQL License                           | `PostgreSQL`                   | Permissive                      |
-| pg_trgm (contrib)          | bundled | PostgreSQL License                           | `PostgreSQL`                   | Permissive                      |
-| **VectorChord** (`vchord`) | 1.1.1   | **AGPL-3.0 _or_ Elastic License 2.0** (dual) | `AGPL-3.0-only OR Elastic-2.0` | **Copyleft / source-available** |
-| **ParadeDB `pg_search`**   | 0.24.0  | **AGPL-3.0** (+ paid commercial)             | `AGPL-3.0-only`                | **Copyleft (AGPL-only)**        |
+| Component                           | Version       | License                                      | SPDX                           | Type                            |
+| ----------------------------------- | ------------- | -------------------------------------------- | ------------------------------ | ------------------------------- |
+| PostgreSQL (base)                   | 18            | PostgreSQL License                           | `PostgreSQL`                   | Permissive                      |
+| Apache AGE                          | 1.7.0         | Apache License 2.0                           | `Apache-2.0`                   | Permissive                      |
+| pgvector                            | 0.8.2         | PostgreSQL License                           | `PostgreSQL`                   | Permissive                      |
+| pg_trgm (contrib)                   | bundled       | PostgreSQL License                           | `PostgreSQL`                   | Permissive                      |
+| **VectorChord** (`vchord`)          | 1.1.1         | **AGPL-3.0 _or_ Elastic License 2.0** (dual) | `AGPL-3.0-only OR Elastic-2.0` | **Copyleft / source-available** |
+| **ParadeDB `pg_search`**            | 0.24.0        | **AGPL-3.0** (+ paid commercial)             | `AGPL-3.0-only`                | **Copyleft (AGPL-only)**        |
+| repology `libversion` (ext / C lib) | 2.0.0 / 3.0.4 | MIT                                          | `MIT`                          | Permissive                      |
 
 All bundled components are shipped **unmodified** from their upstream releases.
 
@@ -81,6 +82,7 @@ Each component's source and license are at its upstream project:
 - pgvector — <https://github.com/pgvector/pgvector> (PostgreSQL License)
 - VectorChord — <https://github.com/tensorchord/VectorChord> (AGPL-3.0 / ELv2)
 - ParadeDB pg_search — <https://github.com/paradedb/paradedb> (AGPL-3.0)
+- repology libversion — <https://github.com/repology/postgresql-libversion> and <https://github.com/repology/libversion> (MIT)
 
 ---
 

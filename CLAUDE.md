@@ -9,8 +9,8 @@ Retrieval-Augmented Generation backends.
 - **Category**: Development
 - **Type**: Container image (PostgreSQL distribution)
 - **Stack**: Dockerfile (OCI), PostgreSQL 18, Apache AGE, pgvector,
-  VectorChord (`vchord`), ParadeDB `pg_search`; built and tested with Podman
-  and Apple `container`
+  VectorChord (`vchord`), ParadeDB `pg_search`, repology `libversion`; built
+  and tested with Podman and Apple `container`
 - **License**: Apache-2.0
 - **Tier**: t1
 
@@ -101,6 +101,10 @@ test/smoke-test.sh container
   and the VOLUME to `/var/lib/postgresql` — mount the latter.
 - Init scripts in `docker-entrypoint-initdb.d/` only run on first cluster init
   and only against the default database.
+- `libversion` (repology) is two source builds: the `libversion` C library
+  (CMake → `/usr/local/lib`, kept at runtime + `ldconfig`) and the PGXS
+  extension linked against it via pkg-config (`PKG_CONFIG_PATH=/usr/local/lib/pkgconfig`).
+  MIT-licensed, no preload. Pinned via `LIBVERSION_VERSION` / `PG_LIBVERSION_VERSION`.
 - Security (ADR-0006): base image is digest-pinned and the vchord/pg_search
   `.deb`s are sha256-verified per arch. **When bumping any of these, update the
   pinned digest/checksums** (build fails otherwise — by design). `test/scan.sh`

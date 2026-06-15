@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-06-15
+
+### Added
+
+- repology `libversion` extension (version-string comparison functions +
+  `versiontext` type, MIT): built from source — the `libversion` C library
+  (CMake, `lib 3.0.4`) plus the PGXS extension (`2.0.0`); created on first init,
+  no preloading. Smoke test asserts `version_compare2`.
+
 ## [0.1.2] - 2026-06-15
 
 ### Added

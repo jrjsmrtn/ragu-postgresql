@@ -25,6 +25,7 @@ official [Apache AGE](https://age.apache.org/) image so one PostgreSQL can back:
 | Vector idx | VectorChord (`vchord`) | 1.1.1             | upstream `.deb`                 |
 | Full-text  | ParadeDB `pg_search`   | 0.24.0            | upstream `.deb`                 |
 | Lexical    | pg_trgm                | (bundled contrib) | enabled via init                |
+| Versions   | `libversion`           | 2.0.0 (lib 3.0.4) | built from source               |
 
 The base image is multi-arch (`linux/amd64`, `linux/arm64`), so it builds and
 runs natively on Apple Silicon. Apache AGE, VectorChord, and pg_search all
@@ -36,7 +37,7 @@ The extensions are created in the default database on first initialisation by
 
 - `00-create-extension-age.sql` (base image) → `age`
 - `01-create-extensions-rag.sql` (this image) → `vector`, `vchord`,
-  `pg_search`, `pg_trgm`
+  `pg_search`, `pg_trgm`, `libversion`
 
 > Init scripts only run on **first** cluster init (empty data volume) and only
 > against the default `POSTGRES_DB`. For additional databases, run
