@@ -175,3 +175,21 @@ COPY docker-entrypoint-initdb.d/01-create-extensions-rag.sql \
 # docker-entrypoint) is still inherited. Keep `age` first to preserve the base
 # image's behaviour.
 CMD ["postgres", "-c", "shared_preload_libraries=age,vchord,pg_search"]
+
+# OCI image labels. Static metadata + build-arg-driven version/revision/created
+# (pass via --build-arg, e.g. ./build.sh; empty if omitted). Declared last so
+# changing the dynamic args doesn't invalidate the cache for the heavy layers.
+# The licenses expression reflects the mixed-license aggregate — AGPL-3.0 floor;
+# see LICENSING.md for the full per-component breakdown (incl. VectorChord ELv2).
+ARG VERSION
+ARG REVISION
+ARG CREATED
+LABEL org.opencontainers.image.title="Ragù PostgreSQL" \
+      org.opencontainers.image.description="RAG-ready PostgreSQL 18: Apache AGE + pgvector + VectorChord + ParadeDB pg_search + pg_trgm + repology libversion" \
+      org.opencontainers.image.licenses="Apache-2.0 AND PostgreSQL AND MIT AND AGPL-3.0-only" \
+      org.opencontainers.image.source="https://github.com/jrjsmrtn/ragu-postgresql" \
+      org.opencontainers.image.base.name="docker.io/apache/age:release_PG18_1.7.0" \
+      org.opencontainers.image.base.digest="sha256:e7de1717e487dac7c1be93a1cd5360a2cf07ff4170342c2af2ac4713c21baf00" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.revision="${REVISION}" \
+      org.opencontainers.image.created="${CREATED}"

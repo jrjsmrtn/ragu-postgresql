@@ -57,6 +57,21 @@ podman build -t local/ragu-postgresql:latest .
 container build -t local/ragu-postgresql:latest .
 ```
 
+### With OCI labels stamped from git
+
+The image carries `org.opencontainers.image.*` labels. The static ones (title,
+description, licenses, source, base image + digest) are baked in; the dynamic
+`version` / `revision` / `created` are build-args. `build.sh` fills them from the
+current checkout:
+
+```bash
+./build.sh                                   # podman, local/ragu-postgresql:latest
+./build.sh container                         # Apple container
+./build.sh podman local/ragu-postgresql:0.1  # custom runtime + tag
+```
+
+Plain `podman build .` works too — the dynamic labels are just left empty.
+
 ## Run
 
 ```bash

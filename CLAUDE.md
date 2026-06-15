@@ -67,9 +67,12 @@ This project follows [AI-Assisted Project Orchestration patterns](https://github
 ## Quick Commands
 
 ```bash
-# Build (pick a runtime)
+# Build (pick a runtime); plain build leaves dynamic OCI labels empty
 podman build -t local/ragu-postgresql:latest .
 container build -t local/ragu-postgresql:latest .
+
+# Build with OCI labels stamped from git (version/revision/created)
+./build.sh podman      # or: container | docker
 
 # Smoke test (runtime-agnostic: podman | container | docker)
 test/smoke-test.sh podman
