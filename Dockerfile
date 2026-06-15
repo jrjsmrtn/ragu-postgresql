@@ -12,6 +12,8 @@
 #   - pg_search : ParadeDB BM25 full-text / hybrid search (Tantivy); requires
 #                 preloading [AGPL-3.0]
 #   - pg_trgm   : trigram / lexical search (built-in contrib, enabled via init)
+#   - libversion: repology/libversion — version-string comparison functions and
+#                 a `versiontext` type [MIT]
 #
 # The result is a single PostgreSQL that can back graph ("GraphRAG"), vector,
 # BM25 full-text, and hybrid retrieval in one database. The image is a
@@ -130,9 +132,41 @@ RUN set -eux; \
     apt-get purge -y --auto-remove curl; \
     rm -rf /var/lib/apt/lists/*
 
+# repology/libversion: advanced version-string comparison as SQL functions and
+# a `versiontext` type (MIT). Two source builds: the libversion C library (CMake
+# → /usr/local/lib, kept at runtime and registered with ldconfig) and the PGXS
+# extension linked against it via pkg-config. No preloading required. Pinned for
+# deliberate bumps.
+ARG LIBVERSION_VERSION=3.0.4
+ARG PG_LIBVERSION_VERSION=2.0.1
+# DL3008 (pin apt versions): build-only toolchain purged in this same layer.
+# hadolint ignore=DL3008
+RUN set -eux; \
+    apt-get update; \
+    apt-mark hold locales; \
+    apt-get install -y --no-install-recommends \
+        build-essential cmake git ca-certificates pkgconf \
+        "postgresql-server-dev-${PG_MAJOR}"; \
+    git clone --branch "${LIBVERSION_VERSION}" --depth 1 \
+        https://github.com/repology/libversion.git /tmp/libversion; \
+    cmake -S /tmp/libversion -B /tmp/libversion/build -DCMAKE_BUILD_TYPE=Release; \
+    cmake --build /tmp/libversion/build -j"$(nproc)"; \
+    cmake --install /tmp/libversion/build; \
+    ldconfig; \
+    git clone --branch "${PG_LIBVERSION_VERSION}" --depth 1 \
+        https://github.com/repology/postgresql-libversion.git /tmp/pg-libversion; \
+    PKG_CONFIG_PATH=/usr/local/lib/pkgconfig make -C /tmp/pg-libversion; \
+    PKG_CONFIG_PATH=/usr/local/lib/pkgconfig make -C /tmp/pg-libversion install; \
+    rm -rf /tmp/libversion /tmp/pg-libversion; \
+    apt-get purge -y --auto-remove \
+        build-essential cmake git pkgconf "postgresql-server-dev-${PG_MAJOR}"; \
+    apt-mark unhold locales; \
+    ldconfig; \
+    rm -rf /var/lib/apt/lists/*
+
 # Enable the RAG extensions in the default database on first init.
 # The base image's 00-create-extension-age.sql creates AGE; this runs after it
-# (lexicographic order) to add vector, vchord, pg_search, and pg_trgm.
+# (lexicographic order) to add vector, vchord, pg_search, pg_trgm, libversion.
 COPY docker-entrypoint-initdb.d/01-create-extensions-rag.sql \
      /docker-entrypoint-initdb.d/01-create-extensions-rag.sql
 
