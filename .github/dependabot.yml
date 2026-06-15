@@ -1,0 +1,24 @@
+# Keep the GitHub Actions used in .github/workflows/ up to date.
+# PRs target `develop` (gitflow integration branch), grouped into one PR,
+# with a conventional-commit `ci:` prefix.
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+    groups:
+      github-actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: "ci"
+  # Base image FROM line (apache/age, digest-pinned). Bumps the tag/digest;
+  # cannot see the from-source extensions or .deb URLs in RUN steps.
+  - package-ecosystem: "docker"
+    directory: "/"
+    target-branch: "develop"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "build"

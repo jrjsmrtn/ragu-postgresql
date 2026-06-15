@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-06-15
+
+### Added
+
+- Dependabot config (`.github/dependabot.yml`): GitHub Actions ecosystem
+  (weekly, grouped, `ci:` prefix) and Docker ecosystem for the base image
+  FROM/digest (weekly, `build:` prefix). Both target `develop`.
+
 ## [0.1.5] - 2026-06-15
 
 ### Added
