@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-06-15
+
 ### Added
 
 - GitHub Actions CI (`.github/workflows/ci.yml`) on push/PR to `main`/`develop`
