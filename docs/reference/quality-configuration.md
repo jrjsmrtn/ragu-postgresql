@@ -53,6 +53,15 @@ hadolint binary or ensure Podman can pull the image.
   `pre-commit`; lefthook overwrites `.git/hooks/`, so gitleaks is re-declared
   in `.lefthook.yml` to preserve the secret scan.
 
+## CI
+
+GitHub Actions (`.github/workflows/ci.yml`) runs on push/PR to `main`/`develop`
+(and `v*` tags), on amd64 runners:
+
+- **lint** — hadolint, shellcheck, dprint, gitleaks (mirrors the hooks).
+- **build-scan** — `build.sh` → `test/smoke-test.sh` → `test/scan.sh`
+  (syft SBOM + grype gate). Same scripts as local, so CI ≡ local.
+
 ## Validation Checklist
 
 - [ ] `.editorconfig` matches Formatting Standards
