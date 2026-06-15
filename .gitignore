@@ -14,6 +14,10 @@ CLAUDE.local.md
 .claude/settings.local.json
 .claude/*.lock
 
+# Security scan artifacts (test/scan.sh)
+sbom.spdx.json
+sbom.cdx.json
+
 # OS / editor noise
 .DS_Store
 *.swp

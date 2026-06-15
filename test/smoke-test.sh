@@ -30,7 +30,11 @@ for _ in $(seq 1 90); do
   fi
   sleep 1
 done
-[ -n "$ready" ] || { echo "!! postgres did not become ready"; "$RUNTIME" logs "$NAME" | tail -30; exit 1; }
+[ -n "$ready" ] || {
+  echo "!! postgres did not become ready"
+  "$RUNTIME" logs "$NAME" | tail -30
+  exit 1
+}
 
 echo ">> running extension + round-trip checks"
 "$RUNTIME" exec -i -e PGPASSWORD="$PASS" "$NAME" \
@@ -38,7 +42,7 @@ echo ">> running extension + round-trip checks"
 \echo -- extension versions --
 SELECT extname || ' ' || extversion
 FROM pg_extension
-WHERE extname IN ('age', 'vector', 'pg_trgm')
+WHERE extname IN ('age', 'vector', 'vchord', 'pg_search', 'pg_trgm')
 ORDER BY extname;
 
 \echo -- AGE: graph + cypher round-trip --

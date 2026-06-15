@@ -1,0 +1,35 @@
+# Two-stage quality gates (see docs/reference/quality-configuration.md).
+# Implements ADR-0002. Stage 1 (pre-commit) is fast; stage 2 (pre-push) is
+# thorough. gitleaks is kept here so `lefthook install` preserves the secret
+# scan the global git template otherwise provides.
+
+pre-commit:
+  parallel: true
+  commands:
+    gitleaks:
+      run: gitleaks protect --staged --verbose
+    format-markdown:
+      glob: "*.md"
+      run: dprint check {staged_files}
+    format-shell:
+      glob: "*.sh"
+      run: shfmt --diff {staged_files}
+
+pre-push:
+  parallel: true
+  commands:
+    lint-shell:
+      glob: "*.sh"
+      run: shellcheck {push_files}
+    lint-dockerfile:
+      glob: "Dockerfile*"
+      # hadolint is not installed via MacPorts; run it if available (local
+      # binary or container), otherwise warn without blocking.
+      run: >
+        if command -v hadolint >/dev/null 2>&1; then
+          hadolint {push_files};
+        elif command -v podman >/dev/null 2>&1; then
+          podman run --rm -i docker.io/hadolint/hadolint < {push_files};
+        else
+          echo "⚠ hadolint unavailable — Dockerfile lint skipped (see docs/reference/quality-configuration.md)";
+        fi

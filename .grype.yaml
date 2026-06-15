@@ -1,0 +1,23 @@
+# grype config for Ragù PostgreSQL image scans (test/scan.sh).
+#
+# Gate philosophy: fail only on FIXABLE-and-unpatched High/Critical CVEs — the
+# ones we can actually act on (e.g. libgnutls30t64, libcap2, which we patch in
+# the Dockerfile). Vulnerabilities with no available apt fix are ignored by fix
+# state below; they re-surface automatically as "fixed" once a patch ships,
+# which then trips the gate and prompts a pinned bump. See ADR-0006.
+fail-on-severity: "high"
+
+ignore:
+  # gosu's embedded Go stdlib (the postgres base ships a prebuilt `gosu`).
+  # Fixes exist only in newer Go releases; we do not rebuild gosu, so these are
+  # not actionable in this image. gosu is a tiny privilege-drop helper.
+  - package:
+      name: stdlib
+      type: go-module
+
+  # No actionable apt remediation: Debian won't-fix, no fix released yet, or
+  # unknown fix state. The gate targets fixable-and-unpatched CVEs; these are
+  # not that. Reviewed via the periodic scan, not blocked on per-CVE entries.
+  - fix-state: wont-fix
+  - fix-state: not-fixed
+  - fix-state: unknown

@@ -1,0 +1,35 @@
+# Architecture Decision Records — Ragù PostgreSQL
+
+foundational:
+  - id: 1
+    file: 0001-record-architecture-decisions.md
+    title: Record Architecture Decisions
+    purpose: HOW TO DECIDE
+    status: Accepted
+  - id: 2
+    file: 0002-adopt-development-best-practices.md
+    title: Adopt Development Best Practices
+    purpose: HOW TO DEVELOP
+    status: Accepted
+  - id: 3
+    file: 0003-technology-stack.md
+    title: Technology Stack
+    purpose: WHAT TECH
+    status: Accepted
+  # ADR-0004 (operations) skipped: this is a Development-category project.
+  # 0004 instead records the topology + licensing decision (see below).
+  - id: 4
+    file: 0004-extension-topology-and-licensing.md
+    title: Single multi-extension PostgreSQL instance and licensing posture
+    purpose: TOPOLOGY + LICENSING
+    status: Accepted
+  - id: 5
+    file: 0005-adopt-pg-search-bm25.md
+    title: Adopt ParadeDB pg_search for BM25 full-text
+    purpose: WHAT TECH
+    status: Accepted
+  - id: 6
+    file: 0006-container-security-checks.md
+    title: Container Security Checks
+    purpose: SECURITY
+    status: Accepted
