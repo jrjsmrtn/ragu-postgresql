@@ -72,6 +72,26 @@ current checkout:
 
 Plain `podman build .` works too — the dynamic labels are just left empty.
 
+## Published image (GHCR)
+
+Tagged releases (`v*`) are built multi-arch (amd64 + arm64) and published to the
+GitHub Container Registry by CI:
+
+```bash
+podman pull ghcr.io/jrjsmrtn/ragu-postgresql:latest
+# or a specific version:
+podman pull ghcr.io/jrjsmrtn/ragu-postgresql:0.1.7
+```
+
+Images are signed with [cosign](https://github.com/sigstore/cosign) **keyless**
+(GitHub OIDC — no static key). Verify the signature:
+
+```bash
+cosign verify ghcr.io/jrjsmrtn/ragu-postgresql:latest \
+  --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+  --certificate-identity-regexp '^https://github.com/jrjsmrtn/ragu-postgresql/\.github/workflows/ci\.yml@refs/tags/v'
+```
+
 ## Run
 
 ```bash
