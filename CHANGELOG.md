@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-06-15
+
+### Added
+
+- GitHub Actions CI (`.github/workflows/ci.yml`) on push/PR to `main`/`develop`
+  (and `v*` tags): a **lint** job (hadolint, shellcheck, dprint, gitleaks) and a
+  **build-scan** job that builds the image, runs the smoke test, and runs the
+  syft SBOM + grype scan — reusing `build.sh` / `test/smoke-test.sh` /
+  `test/scan.sh` so CI matches local. Runs on amd64 (pins verified to match).
+
 ## [0.1.4] - 2026-06-15
 
 ### Added

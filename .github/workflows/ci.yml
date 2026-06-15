@@ -1,0 +1,67 @@
+name: CI
+
+# Build + scan on push (and PRs). Runs on GitHub-hosted amd64 runners; the
+# image is multi-arch and its security pins are verified to match amd64, so the
+# build is representative of the local arm64 one. Reuses the repo's own scripts
+# (build.sh / test/smoke-test.sh / test/scan.sh) so CI == local behaviour.
+
+on:
+  push:
+    branches: [main, develop]
+    tags: ["v*"]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history for gitleaks
+      - name: hadolint (Dockerfile)
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: Dockerfile
+      - name: shellcheck (shell scripts)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+          shellcheck test/*.sh build.sh
+      - name: dprint (markdown formatting)
+        run: |
+          curl -fsSL https://dprint.dev/install.sh | sh -s >/dev/null
+          "$HOME/.dprint/bin/dprint" check
+      - name: gitleaks (secret scan)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # tags, so build.sh's `git describe` stamps labels
+      - name: Build image (OCI labels stamped from git)
+        run: ./build.sh docker local/ragu-postgresql:ci
+      - name: Smoke test (extensions + round-trips)
+        run: IMAGE=local/ragu-postgresql:ci ./test/smoke-test.sh docker
+      - name: Install syft + grype
+        run: |
+          curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh  | sudo sh -s -- -b /usr/local/bin
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sudo sh -s -- -b /usr/local/bin
+      - name: SBOM + vulnerability scan (.grype.yaml policy)
+        run: ./test/scan.sh local/ragu-postgresql:ci docker
+      - name: Upload SBOM
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: |
+            sbom.spdx.json
+            sbom.cdx.json
+          if-no-files-found: ignore
