@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-06-15
+
+### Added
+
+- README "Persistence" section: how PGDATA survives the container lifecycle
+  (named volume / bind mount vs. no `-v`), the first-init-only behaviour of the
+  extension scripts, and the **verified** Apple `container` anonymous-volume
+  behaviour (bare `VOLUME` creates no anonymous volume; named volumes persist
+  across `rm`) versus Docker/Podman.
+
 ## [0.1.1] - 2026-06-15
 
 ### Fixed

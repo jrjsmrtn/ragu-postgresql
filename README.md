@@ -79,6 +79,44 @@ The Compose volume mounts `/var/lib/postgresql` — note PostgreSQL 18 changed
 the image's data layout to `/var/lib/postgresql/18/docker` and the VOLUME to
 `/var/lib/postgresql` (so a `postgres:17` volume is **not** reused as-is).
 
+## Persistence
+
+Data lives under the image's `VOLUME` at `/var/lib/postgresql` (PGDATA is
+`/var/lib/postgresql/18/docker`). Whether it survives the container lifecycle
+depends on what you mount there:
+
+| How you run it                                        | Survives `stop`/`start` | Survives `rm` + recreate                             |
+| ----------------------------------------------------- | ----------------------- | ---------------------------------------------------- |
+| Named volume / bind mount (e.g. the Compose `pgdata`) | yes                     | **yes**                                              |
+| No `-v` given                                         | yes                     | **no** — data does not carry over to a new container |
+| `run --rm` with no volume                             | n/a                     | **no** — nothing is persisted                        |
+
+For anything you want to keep, mount an explicit volume:
+
+```bash
+podman run -d --name ragu -e POSTGRES_PASSWORD=secret -p 5432:5432 \
+  -v ragu-pgdata:/var/lib/postgresql \
+  local/ragu-postgresql:latest
+```
+
+`compose.yaml` already does this. The bare `run` examples above and
+`test/smoke-test.sh` deliberately omit a volume — they are throwaway.
+
+> The `docker-entrypoint-initdb.d/` scripts (which `CREATE EXTENSION age,
+> vector, vchord, pg_search, pg_trgm`) run **only on first init of an empty
+> data directory**. On a persisted volume the extensions are already present on
+> restart — they are not re-created, and a newly added one won't appear until
+> you `CREATE EXTENSION` it yourself or start from a fresh volume.
+
+> **Runtime difference with no `-v` (verified).** Docker/Podman auto-create an
+> _anonymous_ volume for the `VOLUME` path, so the data survives on disk but is
+> orphaned from any new container. Apple `container` creates **no** volume at
+> all — bare-`VOLUME` data lives only on the container's own filesystem and is
+> gone after `rm` (it does survive `stop`/`start`), with no dangling volume left
+> behind. Either way, mount an explicit named volume / bind mount for real data;
+> that persists across `rm` on both (confirmed on Apple `container`, where the
+> volume is an ext4 image under `~/Library/Application Support/com.apple.container/volumes/`).
+
 ## Verify
 
 A runtime-agnostic smoke test checks extension versions and runs an AGE Cypher
