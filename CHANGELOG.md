@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Dependabot config (`.github/dependabot.yml`) for the GitHub Actions ecosystem:
+  weekly, grouped into one PR, targeting `develop` with a `ci:` commit prefix.
+
 ## [0.1.5] - 2026-06-15
 
 ### Added
