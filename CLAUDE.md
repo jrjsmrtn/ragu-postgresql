@@ -33,11 +33,12 @@ Promotion triggers being watched:
 
 ## Status
 
-Image built and smoke-tested under both Podman and Apple `container` (AGE
-1.7.0, pgvector 0.8.2, vchord 1.1.1, pg_search 0.24.0, pg_trgm 1.6). Topology +
-licensing in ADR-0004; pg_search adoption in ADR-0005. Unreleased
-(pre-`v0.1.0`). The image's copyleft floor is now AGPL-3.0 (pg_search is
-AGPL-only) — see `LICENSING.md`.
+Released **v0.1.0** (2026-06-15): single PostgreSQL 18 image with AGE 1.7.0,
+pgvector 0.8.2, VectorChord 1.1.1, pg_search 0.24.0, pg_trgm — built and
+smoke-tested under Podman and Apple `container`, with the ADR-0006 security
+checks (digest pin, `.deb` sha256, grype/syft scan green). Topology + licensing
+in ADR-0004; pg_search adoption in ADR-0005. The image's copyleft floor is
+AGPL-3.0 (pg_search is AGPL-only) — see `LICENSING.md`.
 
 ## Foundational ADRs
 
