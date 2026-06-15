@@ -113,7 +113,9 @@ ARG PG_SEARCH_VERSION=0.24.0
 #   (curl is purged below); the pg_search package itself is pinned via the URL.
 # DL4006 (pipefail): see the vchord step above — sha256sum -c is the gating
 #   command and `set -e` covers it; dash has no `set -o pipefail`.
-# hadolint ignore=DL3008,DL4006
+# SC1091 (`. /etc/os-release`): hadolint's shellcheck can't follow the sourced
+#   file in its mock FS; it exists at build time in the base image.
+# hadolint ignore=DL3008,DL4006,SC1091
 RUN set -eux; \
     arch="$(dpkg --print-architecture)"; \
     . /etc/os-release; \
