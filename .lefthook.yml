@@ -25,11 +25,14 @@ pre-push:
       glob: "Dockerfile*"
       # hadolint is not installed via MacPorts; run it if available (local
       # binary or container), otherwise warn without blocking.
+      # Prefer a local hadolint; else the container — but only if podman is
+      # actually reachable (`podman info`), not merely installed, so a stopped
+      # podman machine degrades to a warning instead of hard-blocking the push.
       run: >
         if command -v hadolint >/dev/null 2>&1; then
           hadolint {push_files};
-        elif command -v podman >/dev/null 2>&1; then
+        elif podman info >/dev/null 2>&1; then
           podman run --rm -i docker.io/hadolint/hadolint < {push_files};
         else
-          echo "⚠ hadolint unavailable — Dockerfile lint skipped (see docs/reference/quality-configuration.md)";
+          echo "⚠ hadolint unavailable (no binary; podman not reachable) — Dockerfile lint skipped (see docs/reference/quality-configuration.md)";
         fi

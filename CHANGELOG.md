@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-06-15
+
+### Fixed
+
+- Pre-push hook: guard the hadolint container fallback on `podman info`
+  (reachability) instead of `command -v podman` (installed), so a stopped
+  podman machine degrades to a skip-with-warning instead of hard-blocking
+  pushes.
+
 ## [0.1.0] - 2026-06-15
 
 ### Added
