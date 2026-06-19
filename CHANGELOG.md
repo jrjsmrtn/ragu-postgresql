@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-06-19
+
+### Added
+
+- Project roadmap (`docs/roadmap/roadmap.md`): vision, status, backlog, and
+  release history. Top backlog item: harden the `pg_search` first-init against
+  the transient v0.1.8 flake.
+
 ## [0.1.8] - 2026-06-15
 
 ### Changed
