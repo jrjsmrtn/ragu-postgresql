@@ -166,16 +166,27 @@ RUN set -eux; \
     ldconfig; \
     rm -rf /var/lib/apt/lists/*
 
-# Enable the RAG extensions in the default database on first init.
-# The base image's 00-create-extension-age.sql creates AGE; this runs after it
-# (lexicographic order) to add vector, vchord, pg_search, pg_trgm, libversion.
+# AGE, VectorChord, and pg_search all REQUIRE shared_preload_libraries (verified:
+# pg_search 0.24.0 errors "must be loaded via shared_preload_libraries" at
+# CREATE EXTENSION otherwise). Bake it into postgresql.conf.sample so EVERY
+# initialized cluster — including the entrypoint's temporary first-init server —
+# loads them from the config file, not solely from the CMD -c args. This makes
+# the first-init CREATE EXTENSION reliable (hardening against the intermittent
+# init flake; see docs/roadmap and ADR-0005).
+RUN printf "\nshared_preload_libraries = 'age,vchord,pg_search'\n" \
+    >> /usr/share/postgresql/postgresql.conf.sample
+
+# Create the RAG extensions on first init, then verify all six exist.
+# 00-create-extension-age.sql (base) creates AGE; 01 adds vector, vchord,
+# pg_search, pg_trgm, libversion; 02 fails the init loudly if any are missing.
 COPY docker-entrypoint-initdb.d/01-create-extensions-rag.sql \
      /docker-entrypoint-initdb.d/01-create-extensions-rag.sql
+COPY docker-entrypoint-initdb.d/02-verify-extensions.sql \
+     /docker-entrypoint-initdb.d/02-verify-extensions.sql
 
-# Override the base CMD to extend shared_preload_libraries: AGE, VectorChord,
-# and pg_search all require preloading. ENTRYPOINT (the postgres
-# docker-entrypoint) is still inherited. Keep `age` first to preserve the base
-# image's behaviour.
+# Keep the CMD override too (same value): it sets the preload for the final
+# server and is belt-and-suspenders with the baked config. ENTRYPOINT (the
+# postgres docker-entrypoint) is inherited.
 CMD ["postgres", "-c", "shared_preload_libraries=age,vchord,pg_search"]
 
 # OCI image labels. Static metadata + build-arg-driven version/revision/created

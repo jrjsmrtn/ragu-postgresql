@@ -14,24 +14,27 @@ multi-arch (amd64 + arm64) image published to GHCR and cosign-signed, two-stage
 local quality gates + GitHub Actions CI (build + scan + publish), Dependabot for
 actions and the base image. Tier **t1** (decision-tracked; ADRs `0001`–`0006`).
 
+## Done
+
+### Reliability — `pg_search` first-init hardening
+
+The v0.1.8 CI run hit an intermittent partial first-init (built correctly, but
+the init session left `pg_search`/`pg_trgm`/`libversion` uncreated; smoke caught
+it, a re-run passed). Hardened (see ADR-0005):
+
+- `shared_preload_libraries` (incl. the **required** `pg_search`) is baked into
+  `postgresql.conf.sample`, so the preload no longer depends solely on the
+  entrypoint passing CMD `-c` args to its temporary init server;
+- `02-verify-extensions.sql` asserts all six extensions post-init and **fails
+  loudly** if any are missing — a partial init can never produce a
+  running-but-incomplete image;
+- the smoke test now exercises a real BM25 index + `@@@` search.
+
+Residual: the exact intermittent cause wasn't reproducible, so this is a
+fail-safe + reliability mitigation rather than a proven root-cause elimination;
+the smoke gate + CI re-run remain the backstop.
+
 ## Planned / backlog
-
-### Reliability
-
-- **Harden the `pg_search` first-init to prevent the v0.1.8 flake.** In the
-  v0.1.8 CI run the image built correctly, but the runtime first-init session
-  aborted after `vchord`, leaving `pg_search`, `pg_trgm`, and `libversion`
-  uncreated (smoke test caught it; a re-run on the identical commit passed). It
-  is so far a single, transient occurrence. Investigate and make init
-  deterministic — options to weigh:
-  - confirm `pg_search` ↔ PostgreSQL 18.4 first-init behaviour (init-time
-    `CREATE EXTENSION` vs. preload ordering / any startup race);
-  - split or reorder the `CREATE EXTENSION` statements, or run `pg_search`
-    last so a transient failure can't mask the others;
-  - make the init self-verify (assert all six extensions exist) so a partial
-    init fails loudly at build/test time rather than intermittently;
-  - keep the smoke-test gate as the backstop regardless.
-  - **Goal:** reliable six-extension init across both runtimes, no flakes.
 
 ### Possible future work (unscheduled)
 
