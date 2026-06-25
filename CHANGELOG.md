@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Harden the first-init against the intermittent `pg_search` flake:
+  - bake `shared_preload_libraries = 'age,vchord,pg_search'` into
+    `postgresql.conf.sample` so every initialized cluster (incl. the
+    entrypoint's temporary init server) loads the preload from the config file,
+    not solely from the CMD `-c` args;
+  - add `02-verify-extensions.sql` to fail the init **loudly** if any of the six
+    extensions is missing — a partial init can no longer produce a
+    running-but-incomplete image;
+  - smoke test now exercises a real `pg_search` BM25 index + `@@@` search.
+  - Note: `pg_search` 0.24.0 **requires** preloading (verified) — it cannot be
+    dropped from `shared_preload_libraries`.
+
 ## [0.1.9] - 2026-06-19
 
 ### Added

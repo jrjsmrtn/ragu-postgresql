@@ -60,6 +60,13 @@ SELECT similarity('retrieval', 'retriever') AS trgm_similarity;
 
 \echo -- libversion: semantic version compare (expect -1) --
 SELECT version_compare2('1.2.0', '1.10.0') AS cmp;
+
+\echo -- pg_search: BM25 index + search (expect row 1) --
+CREATE TABLE _smoke_bm (id serial PRIMARY KEY, body text);
+INSERT INTO _smoke_bm (body) VALUES ('retrieval augmented generation'), ('graph database systems');
+CREATE INDEX _smoke_bm_idx ON _smoke_bm USING bm25 (id, body) WITH (key_field = 'id');
+SELECT id FROM _smoke_bm WHERE body @@@ 'retrieval' ORDER BY id;
+DROP TABLE _smoke_bm;
 SQL
 
 echo ">> OK ($RUNTIME)"

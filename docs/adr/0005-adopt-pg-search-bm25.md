@@ -9,6 +9,13 @@ Accepted
 Supersedes the deferral of `pg_search` in
 [ADR-0004](0004-extension-topology-and-licensing.md).
 
+> **Update:** `pg_search` 0.24.0 **requires** `shared_preload_libraries` —
+> verified: `CREATE EXTENSION pg_search` errors "must be loaded via
+> shared_preload_libraries" otherwise. To harden the first-init against an
+> intermittent partial-init flake, the preload is also baked into
+> `postgresql.conf.sample` and a post-init `02-verify-extensions.sql` fails the
+> init loudly if any extension is missing.
+
 ## Context
 
 [ADR-0004](0004-extension-topology-and-licensing.md) adopted a single
