@@ -19,7 +19,7 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # full history for gitleaks
       - name: hadolint (Dockerfile)
@@ -43,7 +43,7 @@ jobs:
   build-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # tags, so build.sh's `git describe` stamps labels
       - name: Build image (OCI labels stamped from git)
@@ -81,7 +81,7 @@ jobs:
     env:
       IMAGE: ghcr.io/jrjsmrtn/ragu-postgresql
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Image metadata
