@@ -27,9 +27,14 @@ foundational:
     file: 0005-adopt-pg-search-bm25.md
     title: Adopt ParadeDB pg_search for BM25 full-text
     purpose: WHAT TECH
-    status: Accepted
+    status: Superseded by ADR-0007
   - id: 6
     file: 0006-container-security-checks.md
     title: Container Security Checks
     purpose: SECURITY
+    status: Accepted
+  - id: 7
+    file: 0007-replace-pg-search-with-pg-textsearch.md
+    title: Replace ParadeDB pg_search with Tiger Data pg_textsearch for BM25
+    purpose: WHAT TECH
     status: Accepted

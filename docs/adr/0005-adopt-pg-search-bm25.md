@@ -4,7 +4,11 @@ Date: 2026-06-13
 
 ## Status
 
-Accepted
+Superseded by [ADR-0007](0007-replace-pg-search-with-pg-textsearch.md), which
+replaces `pg_search` with Tiger Data `pg_textsearch` (permissive PostgreSQL
+licence, pure C) to drop the image's AGPL-only floor. The context below — the
+concrete need for BM25 hybrid retrieval — still holds; only the extension that
+provides it has changed.
 
 Supersedes the deferral of `pg_search` in
 [ADR-0004](0004-extension-topology-and-licensing.md).
