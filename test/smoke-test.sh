@@ -42,7 +42,7 @@ echo ">> running extension + round-trip checks"
 \echo -- extension versions --
 SELECT extname || ' ' || extversion
 FROM pg_extension
-WHERE extname IN ('age', 'vector', 'vchord', 'pg_search', 'pg_trgm', 'libversion')
+WHERE extname IN ('age', 'vector', 'vchord', 'pg_textsearch', 'pg_trgm', 'libversion')
 ORDER BY extname;
 
 \echo -- AGE: graph + cypher round-trip --
@@ -61,11 +61,11 @@ SELECT similarity('retrieval', 'retriever') AS trgm_similarity;
 \echo -- libversion: semantic version compare (expect -1) --
 SELECT version_compare2('1.2.0', '1.10.0') AS cmp;
 
-\echo -- pg_search: BM25 index + search (expect row 1) --
+\echo -- pg_textsearch: BM25 index + ranked search (expect row 1 first) --
 CREATE TABLE _smoke_bm (id serial PRIMARY KEY, body text);
 INSERT INTO _smoke_bm (body) VALUES ('retrieval augmented generation'), ('graph database systems');
-CREATE INDEX _smoke_bm_idx ON _smoke_bm USING bm25 (id, body) WITH (key_field = 'id');
-SELECT id FROM _smoke_bm WHERE body @@@ 'retrieval' ORDER BY id;
+CREATE INDEX _smoke_bm_idx ON _smoke_bm USING bm25 (body) WITH (text_config = 'english');
+SELECT id FROM _smoke_bm ORDER BY body <@> 'retrieval' LIMIT 1;
 DROP TABLE _smoke_bm;
 SQL
 

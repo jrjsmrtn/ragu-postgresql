@@ -3,18 +3,29 @@
 ## Vision
 
 A single, reproducible PostgreSQL 18 container image for RAG backends — graph
-(Apache AGE), vector (pgvector + VectorChord), full-text/BM25 (ParadeDB
-pg_search), and lexical (pg_trgm) retrieval in one database — built and tested
-on Podman and Apple `container`, supply-chain pinned, scanned, and signed.
+(Apache AGE), vector (pgvector + VectorChord), full-text/BM25 (Tiger Data
+`pg_textsearch`), and lexical (pg_trgm) retrieval in one database — built and
+tested on Podman and Apple `container`, supply-chain pinned, scanned, and signed.
 
 ## Status
 
-Released through **v0.1.8** (see [CHANGELOG](../../CHANGELOG.md)): six extensions,
+Released through **v0.2.0** (see [CHANGELOG](../../CHANGELOG.md)): six extensions,
 multi-arch (amd64 + arm64) image published to GHCR and cosign-signed, two-stage
 local quality gates + GitHub Actions CI (build + scan + publish), Dependabot for
-actions and the base image. Tier **t1** (decision-tracked; ADRs `0001`–`0006`).
+actions and the base image. Tier **t1** (decision-tracked; ADRs `0001`–`0007`).
+The BM25 engine is `pg_textsearch` (permissive) as of v0.2.0 — the AGPL-only
+`pg_search` was replaced (ADR-0007), dropping the image's copyleft floor to
+VectorChord's `AGPL-3.0 OR ELv2`.
 
 ## Done
+
+### BM25 engine swap — `pg_search` → `pg_textsearch` (v0.2.0)
+
+Replaced ParadeDB `pg_search` (AGPL-only, Rust/Tantivy) with Tiger Data
+`pg_textsearch` (permissive PostgreSQL license, pure C on native PG pages),
+built from source via PGXS. Motivation and trade-offs (breaking `@@@` → `<@>`
+query API; loss of phrase queries, unused by consumers; restored whole-image
+ELv2 path) in [ADR-0007](../adr/0007-replace-pg-search-with-pg-textsearch.md).
 
 ### Reliability — `pg_search` first-init hardening
 
@@ -59,3 +70,6 @@ See [CHANGELOG.md](../../CHANGELOG.md) for the authoritative per-version detail.
 | v0.1.6  | Dependabot (actions + docker ecosystems)                                                                                                                                   |
 | v0.1.7  | First GHCR publish (multi-arch, cosign-signed)                                                                                                                             |
 | v0.1.8  | CI GitHub Actions version bumps                                                                                                                                            |
+| v0.1.9  | Roadmap added                                                                                                                                                              |
+| v0.1.10 | `pg_search` first-init hardening (baked preload + verify script)                                                                                                           |
+| v0.2.0  | Replace `pg_search` (AGPL) with `pg_textsearch` (permissive) as the BM25 engine (ADR-0007)                                                                                 |

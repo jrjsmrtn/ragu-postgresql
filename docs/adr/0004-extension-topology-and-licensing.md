@@ -7,8 +7,11 @@ Date: 2026-06-13
 Accepted
 
 > **Update:** the deferral of `pg_search` (below) was superseded by
-> [ADR-0005](0005-adopt-pg-search-bm25.md), which adopts it. The topology and
-> licensing-posture decision otherwise stands.
+> [ADR-0005](0005-adopt-pg-search-bm25.md), which adopted it — and ADR-0005 was
+> in turn superseded by [ADR-0007](0007-replace-pg-search-with-pg-textsearch.md),
+> which replaces `pg_search` with permissive `pg_textsearch`. The net effect on
+> this ADR's licensing posture: the copyleft floor is back to VectorChord's
+> `AGPL-3.0 OR ELv2` (no AGPL-only component). The topology decision stands.
 
 ## Context
 
