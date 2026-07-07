@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-07-07
+
+### Changed
+
+- Replace ParadeDB `pg_search` (0.24.0) with **Tiger Data `pg_textsearch` 1.3.1**
+  as the image's BM25 full-text engine (ADR-0007, supersedes ADR-0005):
+  - `pg_textsearch` is **PostgreSQL-licensed** (permissive) and is now the only
+    change to the license aggregate — the image's copyleft floor drops from hard
+    **`AGPL-3.0-only`** back to VectorChord's **`AGPL-3.0-only OR Elastic-2.0`**,
+    restoring a whole-image ELv2 path (no AGPL-only component remains). OCI
+    `licenses` label and `LICENSING.md` updated accordingly.
+  - Installed by **building from source via PGXS** (git tag `v1.3.1`) — pure C on
+    native Postgres pages, no Tantivy/Rust, no upstream `.deb`; the same
+    source-build pattern as pgvector and libversion.
+  - Preload updated to `shared_preload_libraries=age,vchord,pg_textsearch`
+    (baked into `postgresql.conf.sample` and the `CMD`); first-init
+    `CREATE EXTENSION pg_textsearch`; the verify script expects it in place of
+    `pg_search`.
+  - **Breaking query-API change** for image consumers: BM25 indexes are now
+    `USING bm25(col) WITH (text_config='english')` and ranked with the `<@>`
+    operator in `ORDER BY` (pgvector-style), not `pg_search`'s `@@@` predicate /
+    `paradedb.score`. Downstream `ragu-*` lexical queries must migrate.
+  - **Capability loss:** no phrase/proximity queries (pg_textsearch stores no
+    term positions). Not used by the current `ragu-*` consumers (bag-of-tokens
+    BM25 fused by RRF), so no present functional impact.
+  - Smoke test rewritten to the new BM25 index + `<@>` ranked-search syntax;
+    verified end-to-end under Podman (all six extensions load; ranked query
+    returns the expected row first).
+
 ## [0.1.10] - 2026-06-25
 
 ### Changed

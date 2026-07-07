@@ -6,13 +6,13 @@ backends.
 
 It layers [pgvector](https://github.com/pgvector/pgvector),
 [VectorChord](https://github.com/tensorchord/VectorChord), and
-[ParadeDB pg_search](https://github.com/paradedb/paradedb) on top of the
-official [Apache AGE](https://age.apache.org/) image so one PostgreSQL can back:
+[Tiger Data pg_textsearch](https://github.com/timescale/pg_textsearch) on top of
+the official [Apache AGE](https://age.apache.org/) image so one PostgreSQL can back:
 
 - **GraphRAG** — graph traversal via Apache AGE (openCypher).
 - **Vector retrieval** — embeddings + similarity search via pgvector, with
   scalable, disk-friendly indexing via VectorChord (`vchord`).
-- **Full-text / hybrid retrieval** — BM25 ranking via ParadeDB `pg_search`,
+- **Full-text / hybrid retrieval** — BM25 ranking via `pg_textsearch`,
   plus trigram / fuzzy matching via `pg_trgm`.
 
 ## What's inside
@@ -23,21 +23,21 @@ official [Apache AGE](https://age.apache.org/) image so one PostgreSQL can back:
 | Graph      | Apache AGE             | 1.7.0             | base image                      |
 | Vector     | pgvector               | 0.8.2 (`v0.8.2`)  | built from source               |
 | Vector idx | VectorChord (`vchord`) | 1.1.1             | upstream `.deb`                 |
-| Full-text  | ParadeDB `pg_search`   | 0.24.0            | upstream `.deb`                 |
+| Full-text  | `pg_textsearch`        | 1.3.1 (`v1.3.1`)  | built from source               |
 | Lexical    | pg_trgm                | (bundled contrib) | enabled via init                |
 | Versions   | `libversion`           | 2.0.0 (lib 3.0.4) | built from source               |
 
 The base image is multi-arch (`linux/amd64`, `linux/arm64`), so it builds and
-runs natively on Apple Silicon. Apache AGE, VectorChord, and pg_search all
+runs natively on Apple Silicon. Apache AGE, VectorChord, and pg_textsearch all
 require preloading, so this image overrides the base `CMD` to
-`postgres -c shared_preload_libraries=age,vchord,pg_search`.
+`postgres -c shared_preload_libraries=age,vchord,pg_textsearch`.
 
 The extensions are created in the default database on first initialisation by
 `docker-entrypoint-initdb.d/`:
 
 - `00-create-extension-age.sql` (base image) → `age`
 - `01-create-extensions-rag.sql` (this image) → `vector`, `vchord`,
-  `pg_search`, `pg_trgm`, `libversion`
+  `pg_textsearch`, `pg_trgm`, `libversion`
 
 > Init scripts only run on **first** cluster init (empty data volume) and only
 > against the default `POSTGRES_DB`. For additional databases, run
@@ -139,7 +139,7 @@ podman run -d --name ragu -e POSTGRES_PASSWORD=secret -p 5432:5432 \
 `test/smoke-test.sh` deliberately omit a volume — they are throwaway.
 
 > The `docker-entrypoint-initdb.d/` scripts (which `CREATE EXTENSION age,
-> vector, vchord, pg_search, pg_trgm`) run **only on first init of an empty
+> vector, vchord, pg_textsearch, pg_trgm`) run **only on first init of an empty
 > data directory**. On a persisted volume the extensions are already present on
 > restart — they are not re-created, and a newly added one won't appear until
 > you `CREATE EXTENSION` it yourself or start from a fresh volume.
@@ -169,8 +169,9 @@ test/smoke-test.sh docker
 Supply-chain and vulnerability hygiene (see
 [ADR-0006](docs/adr/0006-container-security-checks.md)):
 
-- **Build-time integrity** — the base image is pinned by digest, and the
-  VectorChord + pg_search `.deb`s are sha256-verified (per arch) before install.
+- **Build-time integrity** — the base image is pinned by digest, the VectorChord
+  `.deb` is sha256-verified (per arch) before install, and the source-built
+  extensions (pgvector, pg_textsearch, libversion) are pinned by git tag.
 - **Image scan** — SBOM (syft) + vulnerability scan (grype), run on demand:
 
 ```bash
@@ -215,11 +216,12 @@ $$) AS (d agtype, e agtype);
 This repository's own files are **Apache-2.0** ([`LICENSE`](LICENSE)).
 
 The **built image is a mixed-license aggregate**: PostgreSQL, Apache AGE,
-pgvector, and pg_trgm are permissively licensed, but **VectorChord (`vchord`)
-is AGPL-3.0 / Elastic License 2.0** and **ParadeDB `pg_search` is AGPL-3.0**
-(AGPL-only). The image's copyleft floor is therefore AGPL-3.0, which carries
-obligations if you redistribute the image or offer it as a network service.
-See [`LICENSING.md`](LICENSING.md),
+pgvector, pg_trgm, and `pg_textsearch` are permissively licensed; the only
+copyleft component is **VectorChord (`vchord`), which is dual-licensed AGPL-3.0
+/ Elastic License 2.0**. The image's copyleft floor is therefore
+`AGPL-3.0 OR ELv2` — you may take the ELv2 path for the whole image — which
+carries obligations if you redistribute the image or offer it as a network
+service. See [`LICENSING.md`](LICENSING.md),
 [ADR-0004](docs/adr/0004-extension-topology-and-licensing.md), and
-[ADR-0005](docs/adr/0005-adopt-pg-search-bm25.md) for the per-component
-breakdown and the intended (self-hosted) distribution model.
+[ADR-0007](docs/adr/0007-replace-pg-search-with-pg-textsearch.md) for the
+per-component breakdown and the intended (self-hosted) distribution model.
