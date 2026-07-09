@@ -3,21 +3,34 @@
 ## Vision
 
 A single, reproducible PostgreSQL 18 container image for RAG backends — graph
-(Apache AGE), vector (pgvector + VectorChord), full-text/BM25 (Tiger Data
-`pg_textsearch`), and lexical (pg_trgm) retrieval in one database — built and
-tested on Podman and Apple `container`, supply-chain pinned, scanned, and signed.
+(Apache AGE), vector (pgvector), full-text/BM25 (Tiger Data `pg_textsearch`), and
+lexical (pg_trgm) retrieval in one database — built and tested on Podman and
+Apple `container`, supply-chain pinned, scanned, and signed. Every bundled
+component is permissively licensed (fully permissive aggregate).
 
 ## Status
 
-Released through **v0.2.0** (see [CHANGELOG](../../CHANGELOG.md)): six extensions,
-multi-arch (amd64 + arm64) image published to GHCR and cosign-signed, two-stage
-local quality gates + GitHub Actions CI (build + scan + publish), Dependabot for
-actions and the base image. Tier **t1** (decision-tracked; ADRs `0001`–`0007`).
-The BM25 engine is `pg_textsearch` (permissive) as of v0.2.0 — the AGPL-only
-`pg_search` was replaced (ADR-0007), dropping the image's copyleft floor to
-VectorChord's `AGPL-3.0 OR ELv2`.
+Released through **v0.2.0** (see [CHANGELOG](../../CHANGELOG.md)); **v0.3.0**
+prepared: **five** extensions (VectorChord removed — ADR-0008), multi-arch
+(amd64 + arm64) image published to GHCR and cosign-signed, two-stage local
+quality gates + GitHub Actions CI (build + scan + publish), Dependabot for
+actions and the base image. Tier **t1** (decision-tracked; ADRs `0001`–`0008`).
+With VectorChord gone, the image is a **fully permissive aggregate**
+(`Apache-2.0 AND PostgreSQL AND MIT`) — no copyleft floor. The BM25 engine is
+`pg_textsearch` (permissive) as of v0.2.0 (ADR-0007).
 
 ## Done
+
+### Remove VectorChord — pgvector-only vector indexing (v0.3.0)
+
+Removed VectorChord (`vchord`), the image's sole copyleft / source-available
+component (AGPL-3.0 or ELv2). Vector search is now pgvector-only (HNSW /
+IVFFlat). The image becomes a **fully permissive aggregate**
+(`Apache-2.0 AND PostgreSQL AND MIT`) with no copyleft floor, no per-arch `.deb`
+to checksum (all non-base extensions are now source-built), and one fewer
+preloaded library. Trade-off: loss of VectorChord's disk-friendly RaBitQ
+indexing at large scale — revisit if the corpus outgrows pgvector. Rationale and
+consequences in [ADR-0008](../adr/0008-remove-vectorchord.md).
 
 ### BM25 engine swap — `pg_search` → `pg_textsearch` (v0.2.0)
 

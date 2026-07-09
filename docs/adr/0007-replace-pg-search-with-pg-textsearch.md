@@ -8,6 +8,14 @@ Accepted
 
 Supersedes [ADR-0005](0005-adopt-pg-search-bm25.md) (adopt ParadeDB `pg_search`).
 
+> **Update ([ADR-0008](0008-remove-vectorchord.md)):** by making `pg_textsearch`
+> permissive, this ADR left **VectorChord as the sole copyleft component** — which
+> is precisely why ADR-0008 could remove VectorChord and reach a fully permissive
+> image. Where this ADR says "VectorChord remains the sole copyleft component" and
+> restores the `AGPL-3.0 OR ELv2` floor / ELv2 path, read that as **superseded**:
+> post-ADR-0008 there is no copyleft floor at all. The preload is now
+> `age,pg_textsearch` (no `vchord`).
+
 ## Context
 
 [ADR-0005](0005-adopt-pg-search-bm25.md) adopted ParadeDB `pg_search` 0.24.0 to

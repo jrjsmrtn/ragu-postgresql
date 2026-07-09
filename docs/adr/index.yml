@@ -38,3 +38,8 @@ foundational:
     title: Replace ParadeDB pg_search with Tiger Data pg_textsearch for BM25
     purpose: WHAT TECH
     status: Accepted
+  - id: 8
+    file: 0008-remove-vectorchord.md
+    title: Remove VectorChord; pgvector-only vector indexing
+    purpose: WHAT TECH
+    status: Accepted
