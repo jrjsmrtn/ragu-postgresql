@@ -6,6 +6,16 @@ Date: 2026-06-13
 
 Accepted
 
+> **Update:** the `.deb` integrity check (#3) originally covered the VectorChord
+> and `pg_search` packages. Both are gone —
+> [ADR-0007](0007-replace-pg-search-with-pg-textsearch.md) moved BM25 to
+> source-built `pg_textsearch`, and [ADR-0008](0008-remove-vectorchord.md) removed
+> VectorChord. **No `.deb` is fetched at build time anymore**; every non-base
+> extension is built from pinned source (git tag). Check #3 is therefore dormant
+> (no subject); the supply-chain floor is now the base-image digest pin (#4),
+> source-tag pins, and the grype/syft scan. Re-adding any `.deb`-installed
+> extension would reactivate check #3.
+
 ## Context
 
 The deliverable is a container image bundling a PostgreSQL base plus several

@@ -9,9 +9,15 @@ Accepted
 > **Update:** the deferral of `pg_search` (below) was superseded by
 > [ADR-0005](0005-adopt-pg-search-bm25.md), which adopted it — and ADR-0005 was
 > in turn superseded by [ADR-0007](0007-replace-pg-search-with-pg-textsearch.md),
-> which replaces `pg_search` with permissive `pg_textsearch`. The net effect on
-> this ADR's licensing posture: the copyleft floor is back to VectorChord's
-> `AGPL-3.0 OR ELv2` (no AGPL-only component). The topology decision stands.
+> which replaces `pg_search` with permissive `pg_textsearch`.
+>
+> **Update ([ADR-0008](0008-remove-vectorchord.md)):** VectorChord has since been
+> **removed**, exercising the "permissive-only set" fallback reserved in
+> _Alternatives Considered_ below. With no copyleft component left, the image is a
+> **fully permissive aggregate** (`Apache-2.0 AND PostgreSQL AND MIT`) — the
+> `AGPL-3.0 OR ELv2` floor described throughout this ADR no longer applies. The
+> single-instance topology decision stands; vector indexing is now pgvector-only
+> (HNSW / IVFFlat).
 
 ## Context
 

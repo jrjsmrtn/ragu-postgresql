@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-07-09
+
+### Security
+
+- Patch newly-disclosed fixable base-image CVEs surfaced by grype (ADR-0006),
+  version-pinned in the Dockerfile's security-upgrade layer:
+  - glibc set (`libc6`/`libc-bin`/`libc-l10n`/`locales`) → `2.41-12+deb13u3`
+    (CVE-2026-0915, CVE-2026-0861, CVE-2026-4046, CVE-2026-4437, CVE-2025-15281
+    High; CVE-2026-4438 Medium);
+  - krb5 runtime (`libgssapi-krb5-2`/`libk5crypto3`/`libkrb5-3`/`libkrb5support0`)
+    → `1.21.3-5+deb13u1` (CVE-2026-40355, CVE-2026-40356 High);
+  - `libsystemd0`/`libudev1` → `257.13-1~deb13u1`, `libgcrypt20` → `deb13u1`,
+    `libsqlite3-0` → `deb13u1`, `sed` → `deb13u1` (Medium/Low).
+  - Scan gate green again (only the policy-ignored gosu `golang.org/x/sys` Low
+    remains, below the High threshold).
+
+### Removed
+
+- **Remove VectorChord (`vchord`)** — the image's sole copyleft /
+  source-available component (AGPL-3.0 or Elastic License 2.0, dual) — ADR-0008,
+  amends ADR-0004 by exercising its reserved permissive-only fallback:
+  - **Vector search is now pgvector-only** (HNSW / IVFFlat). `01-create-extensions-rag.sql`
+    creates `vector` directly (no `CASCADE`); the `vchord` `.deb` install layer and
+    its per-arch sha256 block are dropped from the `Dockerfile`.
+  - **The image becomes a fully permissive aggregate** —
+    `Apache-2.0 AND PostgreSQL AND MIT`, **no copyleft floor**. No AGPL §13
+    source-offer and no ELv2 managed-service prohibition apply to any component;
+    public redistribution and SaaS are no longer license-constrained. OCI
+    `licenses` label and `LICENSING.md` updated.
+  - Preload drops to `shared_preload_libraries=age,pg_textsearch` (baked
+    `postgresql.conf.sample` + `CMD`); the verify script and smoke test now
+    expect **five** extensions (`age`, `vector`, `pg_textsearch`, `pg_trgm`,
+    `libversion`).
+  - **No `.deb` is fetched at build time anymore** — every non-base extension is
+    source-built and git-tag-pinned (ADR-0006 check #3 dormant).
+  - **Trade-off / capability loss:** VectorChord's disk-friendly RaBitQ
+    quantization and scalable index build. At large corpus sizes pgvector HNSW is
+    more memory-hungry and IVFFlat less accurate — revisit if the corpus outgrows
+    pgvector.
+  - **Breaking** for any consumer that created `vchord` indexes; fall back to
+    pgvector index types.
+
 ## [0.2.0] - 2026-07-07
 
 ### Changed

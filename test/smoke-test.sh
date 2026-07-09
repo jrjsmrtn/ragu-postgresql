@@ -42,7 +42,7 @@ echo ">> running extension + round-trip checks"
 \echo -- extension versions --
 SELECT extname || ' ' || extversion
 FROM pg_extension
-WHERE extname IN ('age', 'vector', 'vchord', 'pg_textsearch', 'pg_trgm', 'libversion')
+WHERE extname IN ('age', 'vector', 'pg_textsearch', 'pg_trgm', 'libversion')
 ORDER BY extname;
 
 \echo -- AGE: graph + cypher round-trip --

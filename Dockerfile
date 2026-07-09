@@ -6,9 +6,7 @@
 #     script that runs `CREATE EXTENSION age` in the default database.
 #
 # Added on top for Retrieval-Augmented Generation workloads:
-#   - pgvector  : vector similarity search over embeddings
-#   - vchord    : VectorChord — scalable, disk-friendly vector indexing on top
-#                 of pgvector (RaBitQ); requires preloading [AGPL-3.0 / ELv2]
+#   - pgvector  : vector similarity search over embeddings (HNSW / IVFFlat)
 #   - pg_textsearch : Tiger Data BM25 full-text search; pure C on native
 #                 Postgres pages (no Tantivy/Rust); requires preloading [PostgreSQL]
 #   - pg_trgm   : trigram / lexical search (built-in contrib, enabled via init)
@@ -16,25 +14,48 @@
 #                 a `versiontext` type [MIT]
 #
 # The result is a single PostgreSQL that can back graph ("GraphRAG"), vector,
-# BM25 full-text, and hybrid retrieval in one database. The image is a
-# mixed-license aggregate — see LICENSING.md.
+# BM25 full-text, and hybrid retrieval in one database. Every bundled component
+# is permissively licensed, so the image is a fully permissive aggregate
+# (Apache-2.0 AND PostgreSQL AND MIT) — see LICENSING.md.
 # Pinned by digest (the multi-arch OCI index) so the tag can't be remutated
 # under us and builds stay reproducible. The tag is kept for readability.
 # To bump: skopeo inspect --raw docker://docker.io/apache/age:<tag> | sha256sum
 FROM apache/age:release_PG18_1.7.0@sha256:e7de1717e487dac7c1be93a1cd5360a2cf07ff4170342c2af2ac4713c21baf00
 
-# Security: patch base-image packages with fixable High/Critical CVEs surfaced
-# by the grype scan (ADR-0006):
+# Security: patch base-image packages with fixable CVEs surfaced by the grype
+# scan (ADR-0006). Version-pinned so a bump is deliberate (build fails if a pin
+# is no longer available, the same model as the source-build git tags).
 #   - libgnutls30t64 → deb13u4: CVE-2026-42010, CVE-2026-33845 (Critical),
 #     CVE-2026-42009/5260/3833/33846 (High)
 #   - libcap2 → deb13u1+b1: CVE-2026-4878 (High)
-# Version-pinned so a bump is deliberate (build fails if a pin is no longer
-# available, the same model as the .deb checksums).
+#   - glibc set (libc6/libc-bin/libc-l10n/locales) → deb13u3: CVE-2026-0915,
+#     CVE-2026-0861, CVE-2026-4046, CVE-2026-4437, CVE-2025-15281 (High),
+#     CVE-2026-4438 (Medium). Co-versioned, so all four move together.
+#   - krb5 runtime (libgssapi-krb5-2/libk5crypto3/libkrb5-3/libkrb5support0)
+#     → deb13u1: CVE-2026-40355, CVE-2026-40356 (High)
+#   - libsystemd0/libudev1 → 257.13-1~deb13u1: CVE-2026-4105, CVE-2026-40225,
+#     CVE-2026-29111, CVE-2026-40226 (Medium)
+#   - libgcrypt20 → deb13u1: CVE-2026-41989 (Medium)
+#   - libsqlite3-0 → deb13u1: CVE-2025-7709 (Medium)
+#   - sed → deb13u1: CVE-2026-5958 (Low)
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends --only-upgrade \
         libgnutls30t64=3.8.9-3+deb13u4 \
-        libcap2=1:2.75-10+deb13u1+b1; \
+        libcap2=1:2.75-10+deb13u1+b1 \
+        libc6=2.41-12+deb13u3 \
+        libc-bin=2.41-12+deb13u3 \
+        libc-l10n=2.41-12+deb13u3 \
+        locales=2.41-12+deb13u3 \
+        libgssapi-krb5-2=1.21.3-5+deb13u1 \
+        libk5crypto3=1.21.3-5+deb13u1 \
+        libkrb5-3=1.21.3-5+deb13u1 \
+        libkrb5support0=1.21.3-5+deb13u1 \
+        libsystemd0=257.13-1~deb13u1 \
+        libudev1=257.13-1~deb13u1 \
+        libgcrypt20=1.11.0-7+deb13u1 \
+        libsqlite3-0=3.46.1-7+deb13u1 \
+        sed=4.9-2+deb13u1; \
     rm -rf /var/lib/apt/lists/*
 
 # Pin pgvector to a release that supports PG18 and includes the
@@ -73,34 +94,6 @@ RUN set -eux; \
     apt-get purge -y --auto-remove \
         build-essential git "postgresql-server-dev-${PG_MAJOR}"; \
     apt-mark unhold locales; \
-    rm -rf /var/lib/apt/lists/*
-
-# VectorChord (vchord): scalable, disk-friendly vector indexing layered on top
-# of pgvector's `vector` type. Installed from the upstream Debian package
-# (per-arch, arm64/amd64) pinned to a release. It requires preloading (see CMD
-# override below) and pgvector >= 0.7, < 0.9 (satisfied by PGVECTOR_VERSION).
-ARG VCHORD_VERSION=1.1.1
-# DL3008 (pin apt versions): ca-certificates/curl are transient build-only deps
-#   (curl is purged below); the vchord package itself is pinned via the .deb URL.
-# DL4006 (pipefail): the checksum pipe's last command (sha256sum -c) is what we
-#   gate on, and `set -e` already fails the build on mismatch; /bin/sh is dash
-#   (no `set -o pipefail`), so we do not switch SHELL just for this.
-# hadolint ignore=DL3008,DL4006
-RUN set -eux; \
-    arch="$(dpkg --print-architecture)"; \
-    case "$arch" in \
-      arm64) sha256=59dbe75a398c2df2849631de054d80e60a6c04499fa2d29eebdb04e40f28501c ;; \
-      amd64) sha256=7637a18a97157db8d904bb7093e5ce33b6a395c0acac9ae6b660032f3d57a33e ;; \
-      *) echo "no pinned vchord checksum for arch: $arch" >&2; exit 1 ;; \
-    esac; \
-    apt-get update; \
-    apt-get install -y --no-install-recommends ca-certificates curl; \
-    curl -fsSL -o /tmp/vchord.deb \
-        "https://github.com/tensorchord/VectorChord/releases/download/${VCHORD_VERSION}/postgresql-${PG_MAJOR}-vchord_${VCHORD_VERSION}-1_${arch}.deb"; \
-    echo "${sha256}  /tmp/vchord.deb" | sha256sum -c -; \
-    apt-get install -y --no-install-recommends /tmp/vchord.deb; \
-    rm -f /tmp/vchord.deb; \
-    apt-get purge -y --auto-remove curl; \
     rm -rf /var/lib/apt/lists/*
 
 # Tiger Data pg_textsearch: BM25 full-text search implemented in pure C directly
@@ -176,17 +169,17 @@ RUN set -eux; \
     ldconfig; \
     rm -rf /var/lib/apt/lists/*
 
-# AGE, VectorChord, and pg_textsearch all REQUIRE shared_preload_libraries
-# (pg_textsearch registers its bm25 access method at load time). Bake it into
+# AGE and pg_textsearch both REQUIRE shared_preload_libraries (pg_textsearch
+# registers its bm25 access method at load time). Bake it into
 # postgresql.conf.sample so EVERY initialized cluster — including the entrypoint's
 # temporary first-init server — loads them from the config file, not solely from
 # the CMD -c args. This makes the first-init CREATE EXTENSION reliable (hardening
 # against the intermittent init flake; see docs/roadmap and ADR-0005/ADR-0007).
-RUN printf "\nshared_preload_libraries = 'age,vchord,pg_textsearch'\n" \
+RUN printf "\nshared_preload_libraries = 'age,pg_textsearch'\n" \
     >> /usr/share/postgresql/postgresql.conf.sample
 
-# Create the RAG extensions on first init, then verify all six exist.
-# 00-create-extension-age.sql (base) creates AGE; 01 adds vector, vchord,
+# Create the RAG extensions on first init, then verify all five exist.
+# 00-create-extension-age.sql (base) creates AGE; 01 adds vector,
 # pg_textsearch, pg_trgm, libversion; 02 fails the init loudly if any are missing.
 COPY docker-entrypoint-initdb.d/01-create-extensions-rag.sql \
      /docker-entrypoint-initdb.d/01-create-extensions-rag.sql
@@ -196,21 +189,20 @@ COPY docker-entrypoint-initdb.d/02-verify-extensions.sql \
 # Keep the CMD override too (same value): it sets the preload for the final
 # server and is belt-and-suspenders with the baked config. ENTRYPOINT (the
 # postgres docker-entrypoint) is inherited.
-CMD ["postgres", "-c", "shared_preload_libraries=age,vchord,pg_textsearch"]
+CMD ["postgres", "-c", "shared_preload_libraries=age,pg_textsearch"]
 
 # OCI image labels. Static metadata + build-arg-driven version/revision/created
 # (pass via --build-arg, e.g. ./build.sh; empty if omitted). Declared last so
 # changing the dynamic args doesn't invalidate the cache for the heavy layers.
-# The licenses expression reflects the mixed-license aggregate. With pg_search
-# (AGPL-only) replaced by pg_textsearch (PostgreSQL), the copyleft floor is set
-# by VectorChord's dual AGPL-3.0-or-ELv2 license — so the whole image can once
-# again take the ELv2 path. See LICENSING.md for the per-component breakdown.
+# The licenses expression reflects the aggregate. With VectorChord removed, every
+# bundled component is permissive, so the image carries no copyleft floor — it is
+# a fully permissive aggregate. See LICENSING.md for the per-component breakdown.
 ARG VERSION
 ARG REVISION
 ARG CREATED
 LABEL org.opencontainers.image.title="Ragù PostgreSQL" \
-      org.opencontainers.image.description="RAG-ready PostgreSQL 18: Apache AGE + pgvector + VectorChord + Tiger Data pg_textsearch + pg_trgm + repology libversion" \
-      org.opencontainers.image.licenses="Apache-2.0 AND PostgreSQL AND MIT AND (AGPL-3.0-only OR Elastic-2.0)" \
+      org.opencontainers.image.description="RAG-ready PostgreSQL 18: Apache AGE + pgvector + Tiger Data pg_textsearch + pg_trgm + repology libversion" \
+      org.opencontainers.image.licenses="Apache-2.0 AND PostgreSQL AND MIT" \
       org.opencontainers.image.source="https://github.com/jrjsmrtn/ragu-postgresql" \
       org.opencontainers.image.base.name="docker.io/apache/age:release_PG18_1.7.0" \
       org.opencontainers.image.base.digest="sha256:e7de1717e487dac7c1be93a1cd5360a2cf07ff4170342c2af2ac4713c21baf00" \
