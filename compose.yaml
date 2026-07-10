@@ -4,8 +4,11 @@ name: ragu-postgresql
 
 services:
   db:
-    build: .
-    image: local/ragu-postgresql:latest
+    # Dogfooding deployment pins the published, cosign-signed release.
+    # For local development against the working tree instead, run
+    # `podman compose build` after uncommenting `build: .` below.
+    # build: .
+    image: ghcr.io/jrjsmrtn/ragu-postgresql:0.3.0
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
       POSTGRES_DB: ${POSTGRES_DB:-ragu}

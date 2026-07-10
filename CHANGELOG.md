@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-07-10
+
+### Added
+
+- **pgTAP test** (`test/pgtap.sh` + `test/sql/`): runs a **shared** pgTAP suite
+  (`rag_trio.pgtap.sql`, byte-identical to the sibling `ragu-pglite`'s) that asserts
+  the RAG-trio extensions and a `chunk` schema with one index per modality — HNSW
+  (pgvector), GIN full-text, GIN trigram, and BM25 (pg_textsearch). Because the image
+  ships extensions but no application schema, the runner builds `rag_trio.fixture.sql`
+  in a throwaway container first, then asserts it. pgTAP is a **test-only** dependency,
+  installed from PGDG (`postgresql-<major>-pgtap`) at test time — never shipped in the
+  image. Runtime-agnostic like `smoke-test.sh` (`podman | container | docker`); scans
+  the TAP for `not ok` via in-container `psql`, so no host `psql`/`pg_prove` is needed.
+  This is the concrete cross-sibling proof that the same suite passes on both the WASM
+  (PGlite) and native server engines.
+- **[ADR-0009](docs/adr/0009-testing-strategy.md)** records the testing strategy:
+  smoke (`smoke-test.sh`) + CVE scan (`scan.sh`) + the shared pgTAP suite
+  (`pgtap.sh`), with pgTAP installed test-only (approach A, never in the image) and
+  the suite kept byte-identical with the sibling `ragu-pglite` (its ADR-0008).
+
 ## [0.3.0] - 2026-07-09
 
 ### Security
