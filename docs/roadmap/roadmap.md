@@ -10,11 +10,13 @@ component is permissively licensed (fully permissive aggregate).
 
 ## Status
 
-Released through **v0.3.0** (see [CHANGELOG](../../CHANGELOG.md)): **five**
+Released through **v0.3.1** (see [CHANGELOG](../../CHANGELOG.md)): **five**
 extensions (VectorChord removed — ADR-0008), multi-arch
 (amd64 + arm64) image published to GHCR and cosign-signed, two-stage local
 quality gates + GitHub Actions CI (build + scan + publish), Dependabot for
-actions and the base image. Tier **t1** (decision-tracked; ADRs `0001`–`0008`).
+actions and the base image, plus a **shared pgTAP test suite** (`test/pgtap.sh`)
+cross-checked with the sibling `ragu-pglite` (ADR-0009). Tier **t1**
+(decision-tracked; ADRs `0001`–`0009`).
 With VectorChord gone, the image is a **fully permissive aggregate**
 (`Apache-2.0 AND PostgreSQL AND MIT`) — no copyleft floor. The BM25 engine is
 `pg_textsearch` (permissive) as of v0.2.0 (ADR-0007).
@@ -87,3 +89,4 @@ See [CHANGELOG.md](../../CHANGELOG.md) for the authoritative per-version detail.
 | v0.1.10 | `pg_search` first-init hardening (baked preload + verify script)                                                                                                           |
 | v0.2.0  | Replace `pg_search` (AGPL) with `pg_textsearch` (permissive) as the BM25 engine (ADR-0007)                                                                                 |
 | v0.3.0  | Remove VectorChord (ADR-0008) → fully permissive image; pgvector-only vector indexing; base-CVE patches                                                                    |
+| v0.3.1  | Shared pgTAP test suite (`test/pgtap.sh`) + ADR-0009 testing strategy — cross-sibling correctness with `ragu-pglite`                                                       |
