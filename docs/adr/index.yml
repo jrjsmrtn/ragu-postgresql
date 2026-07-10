@@ -43,3 +43,8 @@ foundational:
     title: Remove VectorChord; pgvector-only vector indexing
     purpose: WHAT TECH
     status: Accepted
+  - id: 9
+    file: 0009-testing-strategy.md
+    title: Testing strategy — smoke + scan + a shared pgTAP suite
+    purpose: HOW TO TEST
+    status: Accepted

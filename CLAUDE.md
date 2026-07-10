@@ -21,7 +21,7 @@ Current tier: **t1** (decision-tracked)
 Tier-specific artifacts in this project:
 
 - CLAUDE.md, conventional commits, gitflow (`main` / `develop`)
-- Foundation + decision ADRs (`docs/adr/0001`–`0008`)
+- Foundation + decision ADRs (`docs/adr/0001`–`0009`)
 - CHANGELOG.md (Keep a Changelog)
 - Two-stage pre-commit hooks
 
@@ -56,6 +56,7 @@ Read these at the start of each AI session for complete context:
 | [ADR-0006](docs/adr/0006-container-security-checks.md)            | SECURITY             | grype/syft scan; base digest pinning |
 | [ADR-0007](docs/adr/0007-replace-pg-search-with-pg-textsearch.md) | WHAT TECH            | Replace pg_search with pg_textsearch |
 | [ADR-0008](docs/adr/0008-remove-vectorchord.md)                   | WHAT TECH            | Remove VectorChord; pgvector-only    |
+| [ADR-0009](docs/adr/0009-testing-strategy.md)                     | HOW TO TEST          | Smoke + scan + shared pgTAP suite    |
 
 ## Development Practices
 

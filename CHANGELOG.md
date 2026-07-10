@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the TAP for `not ok` via in-container `psql`, so no host `psql`/`pg_prove` is needed.
   This is the concrete cross-sibling proof that the same suite passes on both the WASM
   (PGlite) and native server engines.
+- **[ADR-0009](docs/adr/0009-testing-strategy.md)** records the testing strategy:
+  smoke (`smoke-test.sh`) + CVE scan (`scan.sh`) + the shared pgTAP suite
+  (`pgtap.sh`), with pgTAP installed test-only (approach A, never in the image) and
+  the suite kept byte-identical with the sibling `ragu-pglite` (its ADR-0008).
 
 ## [0.3.0] - 2026-07-09
 
