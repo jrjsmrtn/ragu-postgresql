@@ -81,6 +81,9 @@ container build -t local/ragu-postgresql:latest .
 # Smoke test (runtime-agnostic: podman | container | docker)
 test/smoke-test.sh podman
 test/smoke-test.sh container
+
+# pgTAP: run the shared RAG-trio suite (installs pgtap in a throwaway container)
+test/pgtap.sh podman
 ```
 
 ## AI Collaboration Notes
@@ -106,6 +109,14 @@ test/smoke-test.sh container
   and the VOLUME to `/var/lib/postgresql` — mount the latter.
 - Init scripts in `docker-entrypoint-initdb.d/` only run on first cluster init
   and only against the default database.
+- **`test/pgtap.sh`** runs the **shared** pgTAP suite (`test/sql/rag_trio.pgtap.sql`,
+  byte-identical to ragu-pglite's) that asserts the RAG-trio extensions + a `chunk`
+  schema with one index per modality (HNSW, GIN-FTS, GIN-trgm, BM25). The image
+  ships extensions but no app schema, so the runner builds `rag_trio.fixture.sql`
+  first, then asserts. pgTAP is a **test-only** dep — installed from PGDG
+  (`postgresql-<major>-pgtap`) into a throwaway container at test time (needs
+  network), never shipped in the image. Keep the suite in sync with ragu-pglite
+  until a shared corpus/test repo exists.
 - `libversion` (repology) is two source builds: the `libversion` C library
   (CMake → `/usr/local/lib`, kept at runtime + `ldconfig`) and the PGXS
   extension linked against it via pkg-config (`PKG_CONFIG_PATH=/usr/local/lib/pkgconfig`).
