@@ -1,8 +1,9 @@
 -- Shared pgTAP suite for the ragu-* siblings: asserts the RAG-trio extensions,
--- schema, and one index per modality are present. Portable pgTAP (plan ->
--- assertions -> finish), so the SAME assertions run against both siblings:
---   * ragu-postgresql — the server image, via test/pgtap.sh (this repo), against
---     a schema fixture (rag_trio.fixture.sql), and
+-- a chunk schema, and one index per modality (HNSW, GIN-FTS, GIN-trgm, BM25).
+-- Portable pgTAP (plan -> assertions -> finish); the SAME assertions run against
+-- both siblings:
+--   * ragu-postgresql — the server image (test/pgtap.sh), against a schema
+--     fixture (rag_trio.fixture.sql), and
 --   * ragu-pglite     — in-process in PGlite (vitest), against its createDb schema.
 -- Kept in sync by hand for now; a shared corpus/test repo is the eventual target.
 
