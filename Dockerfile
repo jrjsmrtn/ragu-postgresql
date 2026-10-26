@@ -1,7 +1,7 @@
 # Ragù PostgreSQL — a RAG-ready PostgreSQL 18 image.
 #
-# Base: apache/age:release_PG18_1.7.0
-#   = official postgres:18 (Debian) + Apache AGE 1.7.0 (graph extension),
+# Base: apache/age:release_PG18_1.8.0
+#   = official postgres:18 (Debian) + Apache AGE 1.8.0 (graph extension),
 #     with `shared_preload_libraries=age` (inherited CMD) and a base init
 #     script that runs `CREATE EXTENSION age` in the default database.
 #
@@ -20,7 +20,7 @@
 # Pinned by digest (the multi-arch OCI index) so the tag can't be remutated
 # under us and builds stay reproducible. The tag is kept for readability.
 # To bump: skopeo inspect --raw docker://docker.io/apache/age:<tag> | sha256sum
-FROM apache/age:release_PG18_1.7.0@sha256:e7de1717e487dac7c1be93a1cd5360a2cf07ff4170342c2af2ac4713c21baf00
+FROM apache/age:release_PG18_1.8.0@sha256:47a0b054c3663a3e64a25fc0c5a982f1b58348019274b326a691cdf77f78eb58
 
 # Security: patch base-image packages with fixable CVEs surfaced by the grype
 # scan (ADR-0006). Version-pinned so a bump is deliberate (build fails if a pin
@@ -230,7 +230,7 @@ LABEL org.opencontainers.image.title="Ragù PostgreSQL" \
       org.opencontainers.image.description="RAG-ready PostgreSQL 18: Apache AGE + pgvector + Tiger Data pg_textsearch + pg_trgm + repology libversion" \
       org.opencontainers.image.licenses="Apache-2.0 AND PostgreSQL AND MIT" \
       org.opencontainers.image.source="https://github.com/jrjsmrtn/ragu-postgresql" \
-      org.opencontainers.image.base.name="docker.io/apache/age:release_PG18_1.7.0" \
+      org.opencontainers.image.base.name="docker.io/apache/age:release_PG18_1.8.0" \
       org.opencontainers.image.base.digest="sha256:e7de1717e487dac7c1be93a1cd5360a2cf07ff4170342c2af2ac4713c21baf00" \
       org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.revision="${REVISION}" \

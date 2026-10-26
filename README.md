@@ -18,8 +18,8 @@ the official [Apache AGE](https://age.apache.org/) image so one PostgreSQL can b
 
 | Layer      | Component       | Version           | Source                          |
 | ---------- | --------------- | ----------------- | ------------------------------- |
-| Base image | PostgreSQL      | 18                | `apache/age:release_PG18_1.7.0` |
-| Graph      | Apache AGE      | 1.7.0             | base image                      |
+| Base image | PostgreSQL      | 18                | `apache/age:release_PG18_1.8.0` |
+| Graph      | Apache AGE      | 1.8.0             | base image                      |
 | Vector     | pgvector        | 0.8.7 (`v0.8.7`)  | built from source               |
 | Full-text  | `pg_textsearch` | 1.5.1 (`v1.5.1`)  | built from source               |
 | Lexical    | pg_trgm         | (bundled contrib) | enabled via init                |

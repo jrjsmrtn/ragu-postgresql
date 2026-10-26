@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Apache AGE 1.7.0 → 1.8.0**, via the base image `apache/age:release_PG18_1.8.0`
+  (digest re-pinned; the new base also moves PostgreSQL to 18.6). Fixes
+  segfaults on CREATE/MERGE/SET with extra label columns and in the file loaders,
+  a self-deadlock in variable-length-edge queries, and several wrong-result bugs;
+  adds `MERGE ... ON CREATE SET / ON MATCH SET`, index scans, `shortest_path`,
+  `reduce()` and `agtype`↔`jsonb` casts.
 - **pg_textsearch 1.3.1 → 1.5.1** (still built from source via PGXS, pinned by git
   tag). 1.4.0 speeds up top-K queries with a `WHERE` filter and re-declares the
   standalone BM25 scoring functions `STABLE` (previously `IMMUTABLE`); 1.5.0 adds
