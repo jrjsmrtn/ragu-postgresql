@@ -86,7 +86,7 @@ RUN set -eux; \
 
 # Pin pgvector to a release that supports PG18 and includes the
 # CVE-2026-3172 fix (parallel HNSW build buffer overflow).
-ARG PGVECTOR_VERSION=v0.8.2
+ARG PGVECTOR_VERSION=v0.8.7
 ARG PG_MAJOR=18
 
 # Build pgvector from source against the base image's PostgreSQL 18, then strip

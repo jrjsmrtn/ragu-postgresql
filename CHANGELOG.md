@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **pgvector 0.8.2 → 0.8.7** (still built from source, pinned by git tag). Picks up
+  the HNSW vacuum fixes (possible index corruption, `hnsw graph not repaired`),
+  IVFFlat build overflow and memory fixes, the PG18 Hamming/Jaccard performance
+  regression fix, and the `avg` aggregate error on empty input.
+
 ## [0.3.1] - 2026-07-10
 
 ### Added

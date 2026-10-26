@@ -33,7 +33,7 @@ Promotion triggers being watched:
 
 ## Status
 
-Single PostgreSQL 18 image with AGE 1.7.0, pgvector 0.8.2,
+Single PostgreSQL 18 image with AGE 1.7.0, pgvector 0.8.7,
 **pg_textsearch 1.3.1** (replaced ParadeDB pg_search as of v0.2.0, ADR-0007),
 pg_trgm, libversion — built and smoke-tested under Podman and Apple `container`,
 with the ADR-0006 security checks (digest pin, grype/syft scan green).
