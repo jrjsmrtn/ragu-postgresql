@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Apache AGE upgrade scripts are now shipped.** The base image installs only the
+  fresh-install script, so `ALTER EXTENSION age UPDATE` on an existing database failed
+  with "no update path", and meanwhile the new library ran against the old catalog and
+  broke queries on existing graphs (seen moving 1.7.0 to 1.8.0). The image now copies
+  the `age--X.Y.Z--X.Y.Z.sql` upgrade scripts from the matching AGE source tag
+  (`AGE_TAG`, `AGE_VERSION`). The build fails if that tag does not match the base
+  image's AGE version.
+
 ## [0.3.2] - 2026-10-26
 
 ### Fixed
