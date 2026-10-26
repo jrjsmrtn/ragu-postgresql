@@ -84,6 +84,44 @@ RUN set -eux; \
         sed=4.9-2+deb13u1; \
     rm -rf /var/lib/apt/lists/*
 
+# Apache AGE upgrade scripts. The base image installs only the fresh-install script
+# (age--<version>.sql), so `ALTER EXTENSION age UPDATE` on an existing database fails
+# with "no update path" — and until it is run the new library sits on the old catalog,
+# which breaks queries on existing graphs (seen moving 1.7.0 to 1.8.0). Copy the
+# upgrade scripts from the matching AGE source tag. Only numeric
+# age--X.Y.Z--X.Y.Z.sql files are copied: the tag also carries a placeholder template,
+# age--<current>--y.y.y.sql, which must not be installed.
+# Keep AGE_TAG and AGE_VERSION in step with the FROM line above. The layer fails the
+# build when the tag does not match the base image's installed AGE version, or carries
+# no script that upgrades to it, so a base-image bump cannot silently skip this.
+ARG AGE_TAG=PG18/v1.8.0-rc0
+ARG AGE_VERSION=1.8.0
+# PG_MAJOR comes from the base image's ENV.
+# DL3003 (use WORKDIR): a `cd` inside this single build+cleanup RUN is clearer
+#   than a WORKDIR we would immediately tear down.
+# DL3008 (pin apt versions): build-only git, purged in this same layer.
+# hadolint ignore=DL3003,DL3008
+RUN set -eux; \
+    ext="/usr/share/postgresql/${PG_MAJOR}/extension"; \
+    installed="$(sed -n "s/^default_version = '\(.*\)'$/\1/p" "${ext}/age.control")"; \
+    test "${installed}" = "${AGE_VERSION}"; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends git ca-certificates; \
+    git clone --branch "${AGE_TAG}" --depth 1 \
+        https://github.com/apache/age.git /tmp/age; \
+    cd /tmp/age; \
+    n=0; \
+    for f in age--[0-9]*.[0-9]*.[0-9]*--[0-9]*.[0-9]*.[0-9]*.sql; do \
+        install -m 0644 "$f" "${ext}/$f"; \
+        n=$((n + 1)); \
+    done; \
+    test "${n}" -gt 0; \
+    ls "${ext}"/age--*--"${AGE_VERSION}".sql; \
+    cd /; \
+    rm -rf /tmp/age; \
+    apt-get purge -y --auto-remove git; \
+    rm -rf /var/lib/apt/lists/*
+
 # Pin pgvector to a release that supports PG18 and includes the
 # CVE-2026-3172 fix (parallel HNSW build buffer overflow).
 ARG PGVECTOR_VERSION=v0.8.7
