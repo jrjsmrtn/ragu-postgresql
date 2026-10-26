@@ -10,7 +10,7 @@ component is permissively licensed (fully permissive aggregate).
 
 ## Status
 
-Released through **v0.3.1** (see [CHANGELOG](../../CHANGELOG.md)): **five**
+Released through **v0.3.2** (see [CHANGELOG](../../CHANGELOG.md)): **five**
 extensions (VectorChord removed — ADR-0008), multi-arch
 (amd64 + arm64) image published to GHCR and cosign-signed, two-stage local
 quality gates + GitHub Actions CI (build + scan + publish), Dependabot for
@@ -90,3 +90,4 @@ See [CHANGELOG.md](../../CHANGELOG.md) for the authoritative per-version detail.
 | v0.2.0  | Replace `pg_search` (AGPL) with `pg_textsearch` (permissive) as the BM25 engine (ADR-0007)                                                                                 |
 | v0.3.0  | Remove VectorChord (ADR-0008) → fully permissive image; pgvector-only vector indexing; base-CVE patches                                                                    |
 | v0.3.1  | Shared pgTAP test suite (`test/pgtap.sh`) + ADR-0009 testing strategy — cross-sibling correctness with `ragu-pglite`                                                       |
+| v0.3.2  | Dependency refresh: AGE 1.8.0, pgvector 0.8.7, pg_textsearch 1.5.1; apt security pins refreshed and extended (grype gate green)                                            |

@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-10-26
+
+### Fixed
+
+- **Apt security pins refreshed.** The version-pinned `--only-upgrade` layer no longer
+  built: Debian had superseded the pinned glibc, libcap2 and libsqlite3 versions, so
+  apt exited 100. Refreshed those pins (glibc set → deb13u4, libcap2 → +b3,
+  libsqlite3-0 → deb13u2).
+
+### Security
+
+- Pinned every package grype reported with a fixable High or Critical finding: the
+  perl set (`perl`, `perl-base`, `perl-modules-5.40`, `libperl5.40`), the util-linux
+  set (nine packages), `libpcre2-8-0`, `gzip` and `libtasn1-6`. Before the pins the
+  gate failed with 20 Critical and 66 High findings; with them, and again on the
+  final image, it exits 0 with no High or above.
+
 ### Changed
 
 - **Apache AGE 1.7.0 → 1.8.0**, via the base image `apache/age:release_PG18_1.8.0`
@@ -26,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the HNSW vacuum fixes (possible index corruption, `hnsw graph not repaired`),
   IVFFlat build overflow and memory fixes, the PG18 Hamming/Jaccard performance
   regression fix, and the `avg` aggregate error on empty input.
+- `.tmuxp.yml` (a per-machine tmuxp session file) is untracked and git-ignored.
 
 ## [0.3.1] - 2026-07-10
 
