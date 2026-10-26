@@ -135,7 +135,7 @@ RUN set -eux; \
 # NOTE: pg_textsearch is PostgreSQL-licensed (permissive) — see LICENSING.md and
 # docs/adr/0007-replace-pg-search-with-pg-textsearch.md. It requires preloading
 # (see CMD below).
-ARG PG_TEXTSEARCH_VERSION=v1.3.1
+ARG PG_TEXTSEARCH_VERSION=v1.5.1
 # DL3008 (pin apt versions): build-only deps purged in this same layer — pinning
 #   adds brittleness, not reproducibility, to the final image.
 # DL3003 (use WORKDIR): a `cd` inside this single build+cleanup RUN is clearer
