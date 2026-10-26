@@ -20,7 +20,7 @@ that triggers AGPL source-offer or Elastic License managed-service restrictions.
 | Apache AGE                          | 1.7.0         | Apache License 2.0 | `Apache-2.0` | Permissive |
 | pgvector                            | 0.8.7         | PostgreSQL License | `PostgreSQL` | Permissive |
 | pg_trgm (contrib)                   | bundled       | PostgreSQL License | `PostgreSQL` | Permissive |
-| Tiger Data `pg_textsearch`          | 1.3.1         | PostgreSQL License | `PostgreSQL` | Permissive |
+| Tiger Data `pg_textsearch`          | 1.5.1         | PostgreSQL License | `PostgreSQL` | Permissive |
 | repology `libversion` (ext / C lib) | 2.0.0 / 3.0.4 | MIT                | `MIT`        | Permissive |
 
 All bundled components are shipped **unmodified** from their upstream releases.

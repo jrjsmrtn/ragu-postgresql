@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **pg_textsearch 1.3.1 → 1.5.1** (still built from source via PGXS, pinned by git
+  tag). 1.4.0 speeds up top-K queries with a `WHERE` filter and re-declares the
+  standalone BM25 scoring functions `STABLE` (previously `IMMUTABLE`); 1.5.0 adds
+  `tsquery` Boolean filtering, far less writer blocking during compaction and
+  VACUUM, and fixes unstable BM25 scores and silent truncation in deep scans;
+  1.5.1 fixes a concurrent spill/force-merge corruption bug. Upstream ships an
+  upgrade script for every step (`1.3.1--1.4.0` through `1.5.0--1.5.1`).
 - **pgvector 0.8.2 → 0.8.7** (still built from source, pinned by git tag). Picks up
   the HNSW vacuum fixes (possible index corruption, `hnsw graph not repaired`),
   IVFFlat build overflow and memory fixes, the PG18 Hamming/Jaccard performance
