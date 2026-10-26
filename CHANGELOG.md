@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.2] - 2026-10-26
+
+### Fixed
+
+- **Apt security pins refreshed.** The version-pinned `--only-upgrade` layer no longer
+  built: Debian had superseded the pinned glibc, libcap2 and libsqlite3 versions, so
+  apt exited 100. Refreshed those pins (glibc set → deb13u4, libcap2 → +b3,
+  libsqlite3-0 → deb13u2).
+
+### Security
+
+- Pinned every package grype reported with a fixable High or Critical finding: the
+  perl set (`perl`, `perl-base`, `perl-modules-5.40`, `libperl5.40`), the util-linux
+  set (nine packages), `libpcre2-8-0`, `gzip` and `libtasn1-6`. Before the pins the
+  gate failed with 20 Critical and 66 High findings; with them, and again on the
+  final image, it exits 0 with no High or above.
+
+### Changed
+
+- **Apache AGE 1.7.0 → 1.8.0**, via the base image `apache/age:release_PG18_1.8.0`
+  (digest re-pinned; the new base also moves PostgreSQL to 18.6). Fixes
+  segfaults on CREATE/MERGE/SET with extra label columns and in the file loaders,
+  a self-deadlock in variable-length-edge queries, and several wrong-result bugs;
+  adds `MERGE ... ON CREATE SET / ON MATCH SET`, index scans, `shortest_path`,
+  `reduce()` and `agtype`↔`jsonb` casts.
+- **pg_textsearch 1.3.1 → 1.5.1** (still built from source via PGXS, pinned by git
+  tag). 1.4.0 speeds up top-K queries with a `WHERE` filter and re-declares the
+  standalone BM25 scoring functions `STABLE` (previously `IMMUTABLE`); 1.5.0 adds
+  `tsquery` Boolean filtering, far less writer blocking during compaction and
+  VACUUM, and fixes unstable BM25 scores and silent truncation in deep scans;
+  1.5.1 fixes a concurrent spill/force-merge corruption bug. Upstream ships an
+  upgrade script for every step (`1.3.1--1.4.0` through `1.5.0--1.5.1`).
+- **pgvector 0.8.2 → 0.8.7** (still built from source, pinned by git tag). Picks up
+  the HNSW vacuum fixes (possible index corruption, `hnsw graph not repaired`),
+  IVFFlat build overflow and memory fixes, the PG18 Hamming/Jaccard performance
+  regression fix, and the `avg` aggregate error on empty input.
+- `.tmuxp.yml` (a per-machine tmuxp session file) is untracked and git-ignored.
+
 ## [0.3.1] - 2026-07-10
 
 ### Added

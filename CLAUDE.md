@@ -33,8 +33,8 @@ Promotion triggers being watched:
 
 ## Status
 
-Single PostgreSQL 18 image with AGE 1.7.0, pgvector 0.8.2,
-**pg_textsearch 1.3.1** (replaced ParadeDB pg_search as of v0.2.0, ADR-0007),
+Single PostgreSQL 18 image with AGE 1.8.0, pgvector 0.8.7,
+**pg_textsearch 1.5.1** (replaced ParadeDB pg_search as of v0.2.0, ADR-0007),
 pg_trgm, libversion — built and smoke-tested under Podman and Apple `container`,
 with the ADR-0006 security checks (digest pin, grype/syft scan green).
 Topology + licensing in ADR-0004; the BM25-engine swap in ADR-0007; the
@@ -91,8 +91,8 @@ test/pgtap.sh podman
 
 **Project-specific guidance:**
 
-- Base image is `apache/age:release_PG18_1.7.0` (= official `postgres:18`
-  Debian + Apache AGE 1.7.0), **pinned by digest** (ADR-0006). The base `CMD`
+- Base image is `apache/age:release_PG18_1.8.0` (= official `postgres:18`
+  Debian + Apache AGE 1.8.0), **pinned by digest** (ADR-0006). The base `CMD`
   sets `shared_preload_libraries=age`; this image **overrides `CMD`** to
   `postgres -c shared_preload_libraries=age,pg_textsearch` because AGE and
   pg_textsearch both require preloading. ENTRYPOINT is still

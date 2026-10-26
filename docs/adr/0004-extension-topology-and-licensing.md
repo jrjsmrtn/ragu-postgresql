@@ -6,6 +6,9 @@ Date: 2026-06-13
 
 Accepted
 
+Amended by [ADR-0008](0008-remove-vectorchord.md), which exercises the permissive-only
+fallback reserved here.
+
 > **Update:** the deferral of `pg_search` (below) was superseded by
 > [ADR-0005](0005-adopt-pg-search-bm25.md), which adopted it — and ADR-0005 was
 > in turn superseded by [ADR-0007](0007-replace-pg-search-with-pg-textsearch.md),

@@ -1,7 +1,7 @@
 # Ragù PostgreSQL — a RAG-ready PostgreSQL 18 image.
 #
-# Base: apache/age:release_PG18_1.7.0
-#   = official postgres:18 (Debian) + Apache AGE 1.7.0 (graph extension),
+# Base: apache/age:release_PG18_1.8.0
+#   = official postgres:18 (Debian) + Apache AGE 1.8.0 (graph extension),
 #     with `shared_preload_libraries=age` (inherited CMD) and a base init
 #     script that runs `CREATE EXTENSION age` in the default database.
 #
@@ -20,15 +20,15 @@
 # Pinned by digest (the multi-arch OCI index) so the tag can't be remutated
 # under us and builds stay reproducible. The tag is kept for readability.
 # To bump: skopeo inspect --raw docker://docker.io/apache/age:<tag> | sha256sum
-FROM apache/age:release_PG18_1.7.0@sha256:e7de1717e487dac7c1be93a1cd5360a2cf07ff4170342c2af2ac4713c21baf00
+FROM apache/age:release_PG18_1.8.0@sha256:47a0b054c3663a3e64a25fc0c5a982f1b58348019274b326a691cdf77f78eb58
 
 # Security: patch base-image packages with fixable CVEs surfaced by the grype
 # scan (ADR-0006). Version-pinned so a bump is deliberate (build fails if a pin
 # is no longer available, the same model as the source-build git tags).
 #   - libgnutls30t64 → deb13u4: CVE-2026-42010, CVE-2026-33845 (Critical),
 #     CVE-2026-42009/5260/3833/33846 (High)
-#   - libcap2 → deb13u1+b1: CVE-2026-4878 (High)
-#   - glibc set (libc6/libc-bin/libc-l10n/locales) → deb13u3: CVE-2026-0915,
+#   - libcap2 → deb13u1+b3: CVE-2026-4878 (High)
+#   - glibc set (libc6/libc-bin/libc-l10n/locales) → deb13u4 (was deb13u3): CVE-2026-0915,
 #     CVE-2026-0861, CVE-2026-4046, CVE-2026-4437, CVE-2025-15281 (High),
 #     CVE-2026-4438 (Medium). Co-versioned, so all four move together.
 #   - krb5 runtime (libgssapi-krb5-2/libk5crypto3/libkrb5-3/libkrb5support0)
@@ -36,17 +36,27 @@ FROM apache/age:release_PG18_1.7.0@sha256:e7de1717e487dac7c1be93a1cd5360a2cf07ff
 #   - libsystemd0/libudev1 → 257.13-1~deb13u1: CVE-2026-4105, CVE-2026-40225,
 #     CVE-2026-29111, CVE-2026-40226 (Medium)
 #   - libgcrypt20 → deb13u1: CVE-2026-41989 (Medium)
-#   - libsqlite3-0 → deb13u1: CVE-2025-7709 (Medium)
+#   - libsqlite3-0 → deb13u2 (was deb13u1): CVE-2025-7709 (Medium)
 #   - sed → deb13u1: CVE-2026-5958 (Low)
+#   - perl set (perl/perl-base/perl-modules-5.40/libperl5.40) → 5.40.1-6+deb13u1:
+#     Critical and High findings, e.g. CVE-2026-8376, CVE-2026-13221, CVE-2026-48959.
+#     Co-versioned, so all four move together.
+#   - util-linux set (bsdutils/libblkid1/liblastlog2-2/libmount1/libsmartcols1/
+#     libuuid1/login/mount/util-linux) → 2.41.5-0+deb13u1: CVE-2026-53612,
+#     CVE-2026-53613, CVE-2026-53614, CVE-2026-53615 (High). Co-versioned.
+#   - libpcre2-8-0 → 10.46-1~deb13u3: CVE-2026-86145, CVE-2026-89157,
+#     CVE-2026-89161, CVE-2026-103111 (High)
+#   - gzip → deb13u1: CVE-2026-41992 (High)
+#   - libtasn1-6 → deb13u1: CVE-2025-13151 (High)
 RUN set -eux; \
     apt-get update; \
     apt-get install -y --no-install-recommends --only-upgrade \
         libgnutls30t64=3.8.9-3+deb13u4 \
-        libcap2=1:2.75-10+deb13u1+b1 \
-        libc6=2.41-12+deb13u3 \
-        libc-bin=2.41-12+deb13u3 \
-        libc-l10n=2.41-12+deb13u3 \
-        locales=2.41-12+deb13u3 \
+        libcap2=1:2.75-10+deb13u1+b3 \
+        libc6=2.41-12+deb13u4 \
+        libc-bin=2.41-12+deb13u4 \
+        libc-l10n=2.41-12+deb13u4 \
+        locales=2.41-12+deb13u4 \
         libgssapi-krb5-2=1.21.3-5+deb13u1 \
         libk5crypto3=1.21.3-5+deb13u1 \
         libkrb5-3=1.21.3-5+deb13u1 \
@@ -54,13 +64,29 @@ RUN set -eux; \
         libsystemd0=257.13-1~deb13u1 \
         libudev1=257.13-1~deb13u1 \
         libgcrypt20=1.11.0-7+deb13u1 \
-        libsqlite3-0=3.46.1-7+deb13u1 \
+        libsqlite3-0=3.46.1-7+deb13u2 \
+        perl=5.40.1-6+deb13u1 \
+        perl-base=5.40.1-6+deb13u1 \
+        perl-modules-5.40=5.40.1-6+deb13u1 \
+        libperl5.40=5.40.1-6+deb13u1 \
+        bsdutils=1:2.41.5-0+deb13u1 \
+        libblkid1=2.41.5-0+deb13u1 \
+        liblastlog2-2=2.41.5-0+deb13u1 \
+        libmount1=2.41.5-0+deb13u1 \
+        libsmartcols1=2.41.5-0+deb13u1 \
+        libuuid1=2.41.5-0+deb13u1 \
+        login=1:4.16.0-2+really2.41.5-0+deb13u1 \
+        mount=2.41.5-0+deb13u1 \
+        util-linux=2.41.5-0+deb13u1 \
+        libpcre2-8-0=10.46-1~deb13u3 \
+        gzip=1.13-1+deb13u1 \
+        libtasn1-6=4.20.0-2+deb13u1 \
         sed=4.9-2+deb13u1; \
     rm -rf /var/lib/apt/lists/*
 
 # Pin pgvector to a release that supports PG18 and includes the
 # CVE-2026-3172 fix (parallel HNSW build buffer overflow).
-ARG PGVECTOR_VERSION=v0.8.2
+ARG PGVECTOR_VERSION=v0.8.7
 ARG PG_MAJOR=18
 
 # Build pgvector from source against the base image's PostgreSQL 18, then strip
@@ -109,7 +135,7 @@ RUN set -eux; \
 # NOTE: pg_textsearch is PostgreSQL-licensed (permissive) — see LICENSING.md and
 # docs/adr/0007-replace-pg-search-with-pg-textsearch.md. It requires preloading
 # (see CMD below).
-ARG PG_TEXTSEARCH_VERSION=v1.3.1
+ARG PG_TEXTSEARCH_VERSION=v1.5.1
 # DL3008 (pin apt versions): build-only deps purged in this same layer — pinning
 #   adds brittleness, not reproducibility, to the final image.
 # DL3003 (use WORKDIR): a `cd` inside this single build+cleanup RUN is clearer
@@ -204,7 +230,7 @@ LABEL org.opencontainers.image.title="Ragù PostgreSQL" \
       org.opencontainers.image.description="RAG-ready PostgreSQL 18: Apache AGE + pgvector + Tiger Data pg_textsearch + pg_trgm + repology libversion" \
       org.opencontainers.image.licenses="Apache-2.0 AND PostgreSQL AND MIT" \
       org.opencontainers.image.source="https://github.com/jrjsmrtn/ragu-postgresql" \
-      org.opencontainers.image.base.name="docker.io/apache/age:release_PG18_1.7.0" \
+      org.opencontainers.image.base.name="docker.io/apache/age:release_PG18_1.8.0" \
       org.opencontainers.image.base.digest="sha256:e7de1717e487dac7c1be93a1cd5360a2cf07ff4170342c2af2ac4713c21baf00" \
       org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.revision="${REVISION}" \
